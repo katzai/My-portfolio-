@@ -1,31 +1,6 @@
 {
-  "projects": [
-    {
-      "title": "Will You Be My Valentine",
-      "type": "Hobby Project",
-      "description": "This is a proposal link generator for valentines couples in this couples can generate a proposal link and share it with thier valentine and on thr proposal site there is a Yes and No buttons with a cute Ui and No button cannot be clicked and if Yes button clicked a cute animation will show",
-      "link": "https://katzai.github.io/Valentine-/",
-      "images": [
-        "projects/will-you-be-my-valentine/image-1.jpg",
-        "projects/will-you-be-my-valentine/image-2.jpg"
-      ]
-    },
-    {
-      "title": "Katz Life",
-      "type": "Hobby Project",
-      "description": "Katz Life is a life-visualization web application that allows users to generate a personalized timeline based on their date of birth and chosen life expectancy. The platform converts this data into a live, second-by-second countdown, helping users visualize the passage of time in a clear and engaging way.\nUsers can create future life narratives and cinematic scripts inspired by their past experiences, along with birthday significance insights. All generated content can be exported as downloadable PDF files. The application features a futuristic interface with user profiles, achievements, XP progression, daily streak tracking, and activity-based rewards, focusing on meaningful interaction and reflective digital experiences.",
-      "link": "https://katzai.github.io/Katz-Life-/",
-      "images": [
-        "projects/katz-life/image-1.jpg",
-        "projects/katz-life/image-2.jpg",
-        "projects/katz-life/image-3.jpg",
-        "projects/katz-life/image-4.jpg",
-        "projects/katz-life/image-5.jpg",
-        "projects/katz-life/image-6.jpg",
-        "projects/katz-life/image-7.jpg",
-        "projects/katz-life/image-8.jpg"
-      ]
-    }
-  ],
-  "contacts": []
+  "projects": [],
+  "contacts": [],
+  "images": [],
+  "lastUpdated": "2026-02-06T20:51:15.551Z"
 }
