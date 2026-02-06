@@ -9,6 +9,22 @@
         "projects/will-you-be-my-valentine/image-1.jpg",
         "projects/will-you-be-my-valentine/image-2.jpg"
       ]
+    },
+    {
+      "title": "Katz Life",
+      "type": "Hobby Project",
+      "description": "Katz Life is a life-visualization web application that transforms a user’s lifespan into a real-time, second-by-second countdown based on their date of birth and chosen life expectancy. The platform is designed to help users reflect on time, purpose, and personal growth by turning abstract life metrics into an interactive digital experience.\nThe application allows users to generate future-life narratives and cinematic scripts derived from their past experiences, offering a creative perspective on personal storytelling. It also provides birthday significance insights and exports all generated content as downloadable PDF reports. Katz Life features a futuristic, widget-based interface with user profiles, achievements, XP progression, daily streak tracking, and activity-based rewards, encouraging consistent engagement over time.\nBuilt with a strong focus on clean UI, meaningful interaction, and intelligent content generation, Katz Life explores how technology and AI-assisted tools can be used to create reflective, purpose-driven digital products rather than passive utilities.",
+      "link": "https://katzai.github.io/Katz-Life-/",
+      "images": [
+        "projects/katz-life/image-1.jpg",
+        "projects/katz-life/image-2.jpg",
+        "projects/katz-life/image-3.jpg",
+        "projects/katz-life/image-4.jpg",
+        "projects/katz-life/image-5.jpg",
+        "projects/katz-life/image-6.jpg",
+        "projects/katz-life/image-7.jpg",
+        "projects/katz-life/image-8.jpg"
+      ]
     }
   ],
   "contacts": []
