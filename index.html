@@ -64,6 +64,18 @@
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Secret admin access - triple click */
+        .logo.admin-ready {
+            animation: pulse 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .nav-links {
@@ -83,20 +95,6 @@
 
         .nav-links a:hover {
             color: var(--text-primary);
-        }
-
-        .nav-admin {
-            background: var(--accent);
-            color: white !important;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-admin:hover {
-            background: #4F46E5;
-            color: white !important;
-            transform: translateY(-2px);
         }
 
         /* Hero Section */
@@ -131,7 +129,7 @@
         .hero-name {
             font-size: 64px;
             font-weight: 800;
-            line-height: 1.1;
+            line-height: 1.2;
             margin-bottom: 16px;
             letter-spacing: -2px;
             color: var(--text-primary);
@@ -302,6 +300,37 @@
             50% { transform: translateY(-15px); }
         }
 
+        /* About Me Section */
+        #about {
+            background: var(--bg-primary);
+        }
+
+        .about-container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--border);
+        }
+
+        .about-text {
+            font-size: 17px;
+            line-height: 1.9;
+            color: var(--text-primary);
+            text-align: left;
+        }
+
+        .about-highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
         /* Sections */
         section {
             padding: 100px 40px;
@@ -400,10 +429,51 @@
             box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
         }
 
-        .project-image {
+        /* Image Slider */
+        .project-image-container {
+            position: relative;
             width: 100%;
             height: 220px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+        }
+
+        .project-image-slider {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .project-image {
+            min-width: 100%;
+            height: 100%;
             object-fit: cover;
+            object-position: center;
+        }
+
+        .slider-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .slider-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slider-dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
         }
 
         .project-content {
@@ -609,6 +679,14 @@
             .floating-element {
                 display: none;
             }
+
+            .about-content {
+                padding: 30px;
+            }
+
+            .about-text {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -616,14 +694,14 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
-            <div class="logo">Kasinathan P S</div>
+            <div class="logo" id="logoElement" onclick="handleLogoClick()">Kasinathan P S</div>
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
             <ul class="nav-links" id="mobileNav">
                 <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#skills">Skills</a></li>
                 <li><a href="#contact">Contact</a></li>
-                <li><a href="admin.html" class="nav-admin">🔐 Admin</a></li>
             </ul>
         </div>
     </nav>
@@ -669,7 +747,7 @@
                 <div class="image-wrapper">
                     <div class="image-circle">
                         <!-- Replace 'your-photo.jpg' with your actual photo file name -->
-                        <img src="file_00000000424871fa89c90660a1684998.png" alt="Kasinathan P S" class="profile-image" 
+                        <img src="your-photo.jpg" alt="Kasinathan P S" class="profile-image" 
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
                         <div class="image-placeholder" style="display: none;">👨‍💻</div>
                     </div>
@@ -681,6 +759,24 @@
                         <div class="element-icon">📍</div>
                         <div class="element-text">Shoranur, Kerala</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Me Section -->
+    <section id="about">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Introduction</div>
+                <h2 class="section-title">About Me</h2>
+            </div>
+
+            <div class="about-container">
+                <div class="about-content">
+                    <p class="about-text">
+                        I'm <span class="about-highlight">Kasinathan P S</span>, a BCA student based in Shoranur, Palakkad, Kerala, with a strong interest in building purposeful, future-oriented web applications. I focus on crafting clean, intuitive interfaces and well-structured systems that prioritize clarity, usability, and performance. My skill set includes <span class="about-highlight">HTML, CSS, JavaScript, UI design</span>, and integrating <span class="about-highlight">AI tools</span> into real-world applications. Looking ahead, I aim to grow as a <span class="about-highlight">full-stack developer</span> and work on intelligent, impactful products that blend design, technology, and human-centered thinking. I enjoy turning abstract ideas into meaningful digital experiences that feel both functional and thoughtful.
+                    </p>
                 </div>
             </div>
         </div>
@@ -760,6 +856,30 @@
     </footer>
 
     <script>
+        // Secret Admin Access - Triple click on logo
+        let logoClickCount = 0;
+        let logoClickTimer = null;
+
+        function handleLogoClick() {
+            logoClickCount++;
+            const logoElement = document.getElementById('logoElement');
+            
+            if (logoClickTimer) {
+                clearTimeout(logoClickTimer);
+            }
+
+            if (logoClickCount === 3) {
+                logoElement.classList.add('admin-ready');
+                window.location.href = 'admin.html';
+                logoClickCount = 0;
+            } else {
+                logoClickTimer = setTimeout(() => {
+                    logoClickCount = 0;
+                    logoElement.classList.remove('admin-ready');
+                }, 500);
+            }
+        }
+
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const mobileNav = document.getElementById('mobileNav');
@@ -774,7 +894,7 @@
                 title: 'Katz Life',
                 description: 'A revolutionary life countdown application that transforms how people perceive and track their time on Earth. Features an intelligent seconds counter, AI-powered future story generator, and achievement system.',
                 link: 'https://katzai.github.io/Katz-Life-/',
-                image: 'https://via.placeholder.com/600x400/6366F1/FFFFFF?text=Katz+Life'
+                images: ['https://via.placeholder.com/600x400/6366F1/FFFFFF?text=Katz+Life']
             },
             {
                 id: 2,
@@ -782,7 +902,7 @@
                 title: 'Will You Be My Valentine',
                 description: 'An innovative Valentine\'s Day proposal link generator designed for couples to create memorable moments. Features beautiful UI with gradient color schemes and cute animations.',
                 link: 'https://katzai.github.io/Valentine-/',
-                image: 'https://via.placeholder.com/600x400/EC4899/FFFFFF?text=Valentine'
+                images: ['https://via.placeholder.com/600x400/EC4899/FFFFFF?text=Valentine']
             }
         ];
 
@@ -801,24 +921,100 @@
             }
         ];
 
+        // Image slider management
+        const sliderIntervals = {};
+
+        function createImageSlider(projectId, images) {
+            if (!images || images.length <= 1) {
+                return `<img src="${images?.[0] || 'https://via.placeholder.com/600x400/6366F1/FFFFFF?text=Project'}" alt="Project" class="project-image">`;
+            }
+
+            const sliderId = `slider-${projectId}`;
+            return `
+                <div class="project-image-slider" id="${sliderId}">
+                    ${images.map(img => `<img src="${img}" alt="Project" class="project-image" onerror="this.src='https://via.placeholder.com/600x400/6366F1/FFFFFF?text=Project'">`).join('')}
+                </div>
+                <div class="slider-dots" id="dots-${projectId}">
+                    ${images.map((_, i) => `<div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide('${sliderId}', ${i})"></div>`).join('')}
+                </div>
+            `;
+        }
+
+        function startSlider(projectId, imageCount) {
+            if (imageCount <= 1) return;
+
+            const sliderId = `slider-${projectId}`;
+            let currentIndex = 0;
+
+            sliderIntervals[projectId] = setInterval(() => {
+                currentIndex = (currentIndex + 1) % imageCount;
+                const slider = document.getElementById(sliderId);
+                if (slider) {
+                    slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    updateDots(projectId, currentIndex);
+                }
+            }, 3000);
+        }
+
+        function goToSlide(sliderId, index) {
+            const slider = document.getElementById(sliderId);
+            const projectId = sliderId.replace('slider-', '');
+            
+            if (slider) {
+                slider.style.transform = `translateX(-${index * 100}%)`;
+                updateDots(projectId, index);
+                
+                // Reset interval
+                if (sliderIntervals[projectId]) {
+                    clearInterval(sliderIntervals[projectId]);
+                }
+                const imageCount = slider.children.length;
+                startSlider(projectId, imageCount);
+            }
+        }
+
+        function updateDots(projectId, activeIndex) {
+            const dotsContainer = document.getElementById(`dots-${projectId}`);
+            if (dotsContainer) {
+                const dots = dotsContainer.children;
+                Array.from(dots).forEach((dot, i) => {
+                    dot.classList.toggle('active', i === activeIndex);
+                });
+            }
+        }
+
         // Render Functions
         function renderProjects(filter = 'all') {
+            // Clear all intervals
+            Object.values(sliderIntervals).forEach(interval => clearInterval(interval));
+            
             const filteredProjects = filter === 'all' ? projects : projects.filter(p => p.type === filter);
             const grid = document.getElementById('projectsGrid');
             
-            grid.innerHTML = filteredProjects.map(project => `
-                <div class="project-card" onclick="window.open('${project.link}', '_blank')">
-                    <img src="${project.image}" alt="${project.title}" class="project-image" onerror="this.src='https://via.placeholder.com/600x400/6366F1/FFFFFF?text=${encodeURIComponent(project.title)}'">
-                    <div class="project-content">
-                        <span class="project-type">${project.type}</span>
-                        <h3 class="project-title">${project.title}</h3>
-                        <p class="project-description">${project.description}</p>
-                        <a href="${project.link}" class="project-link" target="_blank" onclick="event.stopPropagation()">
-                            View Project →
-                        </a>
+            grid.innerHTML = filteredProjects.map(project => {
+                const images = Array.isArray(project.images) ? project.images : [project.image || project.images];
+                return `
+                    <div class="project-card" onclick="window.open('${project.link}', '_blank')">
+                        <div class="project-image-container">
+                            ${createImageSlider(project.id, images)}
+                        </div>
+                        <div class="project-content">
+                            <span class="project-type">${project.type}</span>
+                            <h3 class="project-title">${project.title}</h3>
+                            <p class="project-description">${project.description}</p>
+                            <a href="${project.link}" class="project-link" target="_blank" onclick="event.stopPropagation()">
+                                View Project →
+                            </a>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+
+            // Start sliders for all projects
+            filteredProjects.forEach(project => {
+                const images = Array.isArray(project.images) ? project.images : [project.image || project.images];
+                startSlider(project.id, images.length);
+            });
 
             document.getElementById('projectCount').textContent = projects.length;
         }
