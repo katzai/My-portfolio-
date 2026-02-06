@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kasinathan P S — Portfolio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0b0f;
+  --card:#14141d;
+  --text:#eaeaf0;
+  --muted:#9a9aa5;
+  --accent:linear-gradient(135deg,#f6c177,#c77dff);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter;
+  background:var(--bg);
+  color:var(--text);
+}
+
+section{
+  max-width:1100px;
+  margin:auto;
+  padding:80px 20px;
+}
+
+h1,h2,h3,h4{font-family:Space Grotesk}
+p{color:var(--muted)}
+
+a{color:#fff;text-decoration:none}
+
+/* HERO */
+.hero{
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:60px;
+  align-items:center;
+}
+.hero img{
+  width:100%;
+  border-radius:16px;
+}
+.hero h1{font-size:64px}
+
+/* PROJECTS */
+.project-card{
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
+  margin-bottom:30px;
+  transition:.4s;
+}
+.project-card:hover{transform:translateY(-6px)}
+.project-content{padding:26px}
+.project-type{
+  font-size:12px;
+  letter-spacing:2px;
+  opacity:.6;
+}
+.project-gallery{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:16px;
+}
+.project-gallery img{
+  height:130px;
+  border-radius:10px;
+}
+
+/* CONTACTS */
+.contact-item{
+  background:var(--card);
+  padding:18px;
+  border-radius:14px;
+  margin-bottom:12px;
+}
+
+/* ADMIN BUTTON */
+#admin-btn{
+  position:fixed;
+  bottom:16px;
+  left:16px;
+  font-size:26px;
+  cursor:pointer;
+  z-index:999;
+}
+
+/* KEYPAD */
+#keypad{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:none;
+  place-items:center;
+  z-index:1000;
+}
+.keypad-box{
+  background:#111;
+  padding:26px;
+  border-radius:18px;
+  text-align:center;
+}
+.keypad-display{
+  font-size:28px;
+  letter-spacing:8px;
+  margin-bottom:20px;
+}
+.keypad-grid{
+  display:grid;
+  grid-template-columns:repeat(3,60px);
+  gap:14px;
+}
+.keypad-grid button{
+  height:60px;
+  font-size:18px;
+  border:none;
+  border-radius:12px;
+  background:#222;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* ADMIN PANEL */
+.admin{
+  display:none;
+  background:#111;
+  padding:30px;
+  border-radius:18px;
+  margin-top:40px;
+}
+.admin input,.admin textarea,.admin select{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  background:#1b1b1b;
+  border:none;
+  color:#fff;
+  border-radius:10px;
+}
+.admin button{
+  padding:12px 20px;
+  background:var(--accent);
+  border:none;
+  border-radius:20px;
+  cursor:pointer;
+}
+.delete{
+  color:#ff6b6b;
+  cursor:pointer;
+  font-size:14px;
+}
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- ADMIN ICON -->
+<div id="admin-btn">🔢</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <h1>Kasinathan<br>P S</h1>
+    <p>Developer · AI Enthusiast · BCA Student</p>
+    <p>I build futuristic, meaningful web applications blending design, logic and AI.</p>
+  </div>
+  <img src="me.jpg">
+</section>
+
+<!-- PROJECTS -->
+<section>
+  <h3>Projects</h3>
+  <div id="projects"></div>
+</section>
+
+<!-- CONTACTS -->
+<section>
+  <h3>Contacts</h3>
+  <div id="contacts"></div>
+</section>
+
+<!-- ADMIN PANEL -->
+<section class="admin" id="adminPanel">
+  <h3>Admin Panel</h3>
+
+  <h4>Add Contact</h4>
+  <input id="cTitle" placeholder="Type (Email / Phone / Link)">
+  <input id="cValue" placeholder="Value">
+  <button onclick="addContact()">Add Contact</button>
+
+  <h4 style="margin-top:30px">Add Project</h4>
+  <input id="pTitle" placeholder="Project Title">
+  <textarea id="pDesc" placeholder="Description"></textarea>
+  <input id="pImages" placeholder="Image filenames (comma separated)">
+  <select id="pType">
+    <option>Main</option>
+    <option>Hobby</option>
+  </select>
+  <button onclick="addProject()">Add Project</button>
+</section>
+
+<!-- KEYPAD -->
+<div id="keypad">
+  <div class="keypad-box">
+    <div class="keypad-display" id="code">____</div>
+    <div class="keypad-grid">
+      <button onclick="press(1)">1</button><button onclick="press(2)">2</button><button onclick="press(3)">3</button>
+      <button onclick="press(4)">4</button><button onclick="press(5)">5</button><button onclick="press(6)">6</button>
+      <button onclick="press(7)">7</button><button onclick="press(8)">8</button><button onclick="press(9)">9</button>
+      <button onclick="clearCode()">C</button><button onclick="press(0)">0</button><button onclick="check()">↵</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SECRET="2583";
+let entered="";
+
+const projects=JSON.parse(localStorage.getItem("projects")||"[]");
+const contacts=JSON.parse(localStorage.getItem("contacts")||"[]");
+
+function render(){
+  document.getElementById("projects").innerHTML=
+    projects.map((p,i)=>`
+      <div class="project-card">
+        <div class="project-gallery">
+          ${p.images.map(img=>`<img src="${img}">`).join("")}
+        </div>
+        <div class="project-content">
+          <div class="project-type">${p.type.toUpperCase()}</div>
+          <h4>${p.title}</h4>
+          <p>${p.desc}</p>
+          <span class="delete" onclick="delProject(${i})">Delete</span>
+        </div>
+      </div>
+    `).join("");
+
+  document.getElementById("contacts").innerHTML=
+    contacts.map((c,i)=>`
+      <div class="contact-item">
+        <strong>${c.title}:</strong> ${c.value}
+        <span class="delete" onclick="delContact(${i})">Delete</span>
+      </div>
+    `).join("");
+}
+render();
+
+function addContact(){
+  contacts.push({title:cTitle.value,value:cValue.value});
+  localStorage.setItem("contacts",JSON.stringify(contacts));
+  render();
+}
+function delContact(i){
+  contacts.splice(i,1);
+  localStorage.setItem("contacts",JSON.stringify(contacts));
+  render();
+}
+function addProject(){
+  projects.push({
+    title:pTitle.value,
+    desc:pDesc.value,
+    images:pImages.value.split(","),
+    type:pType.value
+  });
+  localStorage.setItem("projects",JSON.stringify(projects));
+  render();
+}
+function delProject(i){
+  projects.splice(i,1);
+  localStorage.setItem("projects",JSON.stringify(projects));
+  render();
+}
+
+/* KEYPAD */
+admin-btn.onclick=()=>keypad.style.display="grid";
+function press(n){
+  if(entered.length<4){
+    entered+=n;
+    code.textContent=entered.padEnd(4,"_");
+  }
+}
+function clearCode(){
+  entered="";
+  code.textContent="____";
+}
+function check(){
+  if(entered===SECRET){
+    keypad.style.display="none";
+    adminPanel.style.display="block";
+  }
+  clearCode();
+}
+</script>
+
+</body>
+  </html>
