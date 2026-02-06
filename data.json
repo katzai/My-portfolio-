@@ -1,0 +1,15 @@
+{
+  "projects": [
+    {
+      "title": "Will You Be My Valentine",
+      "type": "Hobby Project",
+      "description": "This is a proposal link generator for valentines couples in this couples can generate a proposal link and share it with thier valentine and on thr proposal site there is a Yes and No buttons with a cute Ui and No button cannot be clicked and if Yes button clicked a cute animation will show",
+      "link": "https://katzai.github.io/Valentine-/",
+      "images": [
+        "projects/will-you-be-my-valentine/image-1.jpg",
+        "projects/will-you-be-my-valentine/image-2.jpg"
+      ]
+    }
+  ],
+  "contacts": []
+}
