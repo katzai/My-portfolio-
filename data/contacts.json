@@ -9,5 +9,16 @@
     "link": "https://www.instagram.com/kas1ee?igsh=eTZybTYyN21od2xr",
     "message": "Follow me on Instagram",
     "date": "2026-02-07T06:49:30.030Z"
+  },
+  {
+    "id": "contact_1770447047635",
+    "icon": "fas fa-envelope",
+    "iconColor": "#6366F1",
+    "platform": "Email",
+    "label": "Enquiry Mail",
+    "value": "pskasinathan1@gmail.com",
+    "link": "mailto:pskasinathan1@gmail.com",
+    "message": "Ask about my website and projects",
+    "date": "2026-02-07T06:50:47.635Z"
   }
 ]
