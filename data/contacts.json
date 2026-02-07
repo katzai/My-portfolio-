@@ -20,5 +20,27 @@
     "link": "mailto:pskasinathan1@gmail.com",
     "message": "Ask about my website and projects",
     "date": "2026-02-07T06:50:47.635Z"
+  },
+  {
+    "id": "contact_1770447379251",
+    "icon": "fab fa-linkedin",
+    "iconColor": "#0A66C2",
+    "platform": "LinkedIn",
+    "label": "LinkedIn",
+    "value": "https://www.linkedin.com/in/kasinathan-p-s-a53174352?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    "link": "https://www.linkedin.com/in/kasinathan-p-s-a53174352?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    "message": "",
+    "date": "2026-02-07T06:56:19.251Z"
+  },
+  {
+    "id": "contact_1770447394602",
+    "icon": "fab fa-github",
+    "iconColor": "#181717",
+    "platform": "GitHub",
+    "label": "GitHub",
+    "value": "https://github.com/kaztai",
+    "link": "https://github.com/kaztai",
+    "message": "",
+    "date": "2026-02-07T06:56:34.602Z"
   }
 ]
