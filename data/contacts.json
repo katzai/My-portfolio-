@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "contact_1770446970030",
+    "icon": "fab fa-instagram",
+    "iconColor": "#E4405F",
+    "platform": "Instagram",
+    "label": "Instagram",
+    "value": "https://www.instagram.com/kas1ee?igsh=eTZybTYyN21od2xr",
+    "link": "https://www.instagram.com/kas1ee?igsh=eTZybTYyN21od2xr",
+    "message": "Follow me on Instagram",
+    "date": "2026-02-07T06:49:30.030Z"
+  }
+]
