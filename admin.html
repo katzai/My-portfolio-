@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Portfolio Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-main: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-gray: #6B6B6B;
+            --border: #E5E7EB;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-subtitle {
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .pin-display {
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 36px;
+            letter-spacing: 16px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keypad-btn {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        .keypad-btn:hover {
+            background: var(--bg-main);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .keypad-btn:active {
+            transform: translateY(0);
+        }
+
+        .keypad-btn.clear {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            grid-column: span 2;
+        }
+
+        .keypad-btn.clear:hover {
+            background: #dc2626;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            text-align: center;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid var(--border);
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sync-status {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-status.synced {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .sync-status.syncing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .sync-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            background: white;
+            padding: 0 40px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--text-gray);
+            color: white;
+        }
+
+        .folder-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .folder-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .folder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-main);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .folder-item:hover {
+            background: #E5E7EB;
+        }
+
+        .folder-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .folder-icon {
+            font-size: 20px;
+        }
+
+        .folder-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .folder-count {
+            background: rgba(0,0,0,0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .folder-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .folder-delete:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .upload-zone {
+            background: white;
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 32px;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #F8F9FA;
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: #EEF2FF;
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .image-card.selected {
+            outline: 4px solid var(--primary);
+            transform: scale(0.95);
+        }
+
+        .image-preview {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 12px;
+        }
+
+        .image-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-folder {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .image-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 28px 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: var(--text-gray);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+            background: white;
+        }
+
+        /* Social Media Icon Selector */
+        .icon-selector {
+            position: relative;
+        }
+
+        .icon-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .icon-preview:hover {
+            border-color: var(--primary);
+        }
+
+        .icon-preview i {
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
+        }
+
+        .icon-preview-text {
+            flex: 1;
+            font-size: 15px;
+            color: var(--text-dark);
+        }
+
+        .icon-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 100;
+            display: none;
+        }
+
+        .icon-dropdown.active {
+            display: block;
+        }
+
+        .icon-search {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .icon-search input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .icon-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-option:hover {
+            background: var(--bg-main);
+        }
+
+        .icon-option.selected {
+            background: var(--primary);
+            color: white;
+        }
+
+        .icon-option i {
+            font-size: 20px;
+            width: 28px;
+            text-align: center;
+        }
+
+        .icon-option-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cropper-wrapper {
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .project-slider {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .project-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .project-slide.active {
+            opacity: 1;
+        }
+
+        .project-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-body {
+            padding: 24px;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .project-desc {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .contact-icon-display {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .contact-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .contact-email {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .contact-message {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 12px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .contact-date {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .config-notice {
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .config-notice-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #92400E;
+        }
+
+        .config-notice-text {
+            font-size: 14px;
+            color: #92400E;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .selected-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .selected-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 3px solid var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .images-grid, .projects-grid, .contacts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">Admin Access</h1>
+            <p class="login-subtitle">Enter your 4-digit PIN</p>
+            <div class="pin-display" id="pinDisplay">····</div>
+            
+            <div class="keypad">
+                <button class="keypad-btn" onclick="addDigit('1')">1</button>
+                <button class="keypad-btn" onclick="addDigit('2')">2</button>
+                <button class="keypad-btn" onclick="addDigit('3')">3</button>
+                <button class="keypad-btn" onclick="addDigit('4')">4</button>
+                <button class="keypad-btn" onclick="addDigit('5')">5</button>
+                <button class="keypad-btn" onclick="addDigit('6')">6</button>
+                <button class="keypad-btn" onclick="addDigit('7')">7</button>
+                <button class="keypad-btn" onclick="addDigit('8')">8</button>
+                <button class="keypad-btn" onclick="addDigit('9')">9</button>
+                <button class="keypad-btn clear" onclick="clearPin()">Clear</button>
+                <button class="keypad-btn" onclick="addDigit('0')">0</button>
+            </div>
+            
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <div class="admin-container" id="adminDashboard">
+        <div class="admin-header">
+            <h1 class="admin-title">Portfolio Admin</h1>
+            <div class="header-actions">
+                <div class="sync-status synced" id="syncStatus">
+                    <span>✓</span>
+                    <span id="syncText">Ready</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="switchTab('images')">🖼️ Images</button>
+            <button class="tab-btn" onclick="switchTab('projects')">💼 Projects</button>
+            <button class="tab-btn" onclick="switchTab('contacts')">📧 Contacts</button>
+            <button class="tab-btn" onclick="switchTab('config')">⚙️ Config</button>
+        </nav>
+
+        <div class="content">
+            <section id="imagesSection" class="section active">
+                <div class="section-header">
+                    <h2 class="section-title">Image Gallery</h2>
+                    <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📤 Upload Images</button>
+                </div>
+
+                <div class="folder-panel">
+                    <div class="folder-header">
+                        <div class="folder-title">
+                            <span>📁</span>
+                            <span>Folders</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openFolderModal()">➕ New Folder</button>
+                    </div>
+                    <div class="folder-list" id="folderList"></div>
+                </div>
+
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag & drop images here</div>
+                    <div class="upload-subtext">or click to browse • Unlimited uploads • PNG, JPG, GIF, WebP</div>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                </div>
+
+                <div class="images-grid" id="imagesGrid"></div>
+            </section>
+
+            <section id="projectsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Projects</h2>
+                    <button class="btn btn-primary" onclick="openProjectModal()">➕ New Project</button>
+                </div>
+
+                <div class="projects-grid" id="projectsGrid"></div>
+            </section>
+
+            <section id="contactsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Contact & Social Media</h2>
+                    <button class="btn btn-primary" onclick="openContactModal()">➕ Add Contact</button>
+                </div>
+
+                <div class="contacts-grid" id="contactsList"></div>
+            </section>
+
+            <section id="configSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">GitHub Configuration</h2>
+                    <button class="btn btn-success" onclick="saveConfig()">💾 Save Config</button>
+                </div>
+
+                <div class="folder-panel">
+                    <div class="config-notice">
+                        <div class="config-notice-title">⚠️ Important: GitHub Setup Required</div>
+                        <div class="config-notice-text">
+                            This admin panel pushes all changes directly to GitHub. Configure your GitHub credentials below to enable auto-sync.
+                            <br><br>
+                            <strong>How to get a GitHub Token:</strong><br>
+                            1. Go to GitHub Settings → Developer settings → Personal access tokens<br>
+                            2. Generate new token (classic)<br>
+                            3. Select 'repo' scope<br>
+                            4. Copy the token and paste below
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GitHub Personal Access Token</label>
+                        <input type="password" class="form-input" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GitHub Repository (format: username/repo)</label>
+                        <input type="text" class="form-input" id="githubRepo" placeholder="john/portfolio">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin PIN (4 digits)</label>
+                        <input type="password" class="form-input" id="adminPin" placeholder="1234" maxlength="4">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="folderModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Folder</h3>
+                <button class="modal-close" onclick="closeFolderModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Folder Name</label>
+                    <input type="text" class="form-input" id="folderNameInput" placeholder="e.g., Portfolio, UI Design, Web Projects">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFolderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createFolder()">Create Folder</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="cropModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Crop Image</h3>
+                <button class="modal-close" onclick="closeCropModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="cropper-wrapper">
+                    <img id="cropImage" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCropModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveCrop()">✂️ Save Cropped Image</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="projectModalTitle">New Project</h3>
+                <button class="modal-close" onclick="closeProjectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Project Title</label>
+                    <input type="text" class="form-input" id="projectTitle" placeholder="My Awesome Project">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="projectDesc" placeholder="Describe your project..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Technologies (comma-separated)</label>
+                    <input type="text" class="form-input" id="projectTech" placeholder="React, Node.js, MongoDB">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Project URL (optional)</label>
+                    <input type="text" class="form-input" id="projectUrl" placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Images (Click to select unlimited)</label>
+                    <div class="images-grid" id="projectImageSelect"></div>
+                    
+                    <div class="selected-preview" id="selectedPreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveProject()">💾 Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="contactModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Contact / Social Media</h3>
+                <button class="modal-close" onclick="closeContactModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Platform / Type</label>
+                    <div class="icon-selector">
+                        <div class="icon-preview" id="iconPreview" onclick="toggleIconDropdown()">
+                            <i class="fas fa-envelope" id="selectedIcon" style="color: #6366F1;"></i>
+                            <span class="icon-preview-text" id="selectedPlatform">Email</span>
+                            <i class="fas fa-chevron-down" style="font-size: 14px; color: #6B6B6B;"></i>
+                        </div>
+                        <div class="icon-dropdown" id="iconDropdown">
+                            <div class="icon-search">
+                                <input type="text" placeholder="Search platforms..." id="iconSearchInput" oninput="filterIcons()">
+                            </div>
+                            <div class="icon-grid" id="iconGrid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Label / Display Name</label>
+                    <input type="text" class="form-input" id="contactName" placeholder="e.g., Email, Instagram, LinkedIn">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Value / Username / Link</label>
+                    <input type="text" class="form-input" id="contactValue" placeholder="e.g., john@example.com, @username, or full URL">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message / Description (optional)</label>
+                    <textarea class="form-textarea" id="contactMessage" placeholder="Optional message or description..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveContact()">💾 Save Contact</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    
+    <script>
+    // ===== EMBEDDED ADMIN CONFIG =====
+    const CONFIG_KEY = 'portfolio_admin_config';
+
+    const Config = {
+        token: '',
+        repo: '',
+        pin: '1234',
+
+        load() {
+            try {
+                const saved = localStorage.getItem(CONFIG_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.token = data.token || '';
+                    this.repo = data.repo || '';
+                    this.pin = data.pin || '1234';
+                }
+            } catch (e) {
+                console.warn('Config load failed, using defaults');
+            }
+        },
+
+        save() {
+            try {
+                const data = {
+                    token: this.token,
+                    repo: this.repo,
+                    pin: this.pin
+                };
+                localStorage.setItem(CONFIG_KEY, JSON.stringify(data));
+                return true;
+            } catch (e) {
+                console.error('Config save failed:', e);
+                return false;
+            }
+        },
+
+        isConfigured() {
+            return this.token && this.repo && this.token.startsWith('ghp_');
+        }
+    };
+
+    Config.load();
+
+    // ===== EMBEDDED ADMIN LOGIC =====
+    let currentPin = '';
+    let currentFolder = 'all';
+    let images = [];
+    let folders = ['Uncategorized', 'Portfolio', 'UI-UX', 'Web-Design', 'Photography'];
+    let projects = [];
+    let contacts = [];
+    let cropper = null;
+    let currentCropId = null;
+    let selectedImages = [];
+    let currentEditProject = null;
+    let selectedPlatform = { icon: 'fas fa-envelope', name: 'Email', color: '#6366F1', urlPattern: 'mailto:' };
+
+    // Comprehensive social media and contact platforms
+    const socialPlatforms = [
+        // Email & Communication
+        { name: 'Email', icon: 'fas fa-envelope', color: '#6366F1', urlPattern: 'mailto:' },
+        { name: 'Phone', icon: 'fas fa-phone', color: '#10B981', urlPattern: 'tel:' },
+        { name: 'WhatsApp', icon: 'fab fa-whatsapp', color: '#25D366', urlPattern: 'https://wa.me/' },
+        { name: 'Telegram', icon: 'fab fa-telegram', color: '#0088cc', urlPattern: 'https://t.me/' },
+        { name: 'Messenger', icon: 'fab fa-facebook-messenger', color: '#0084FF', urlPattern: 'https://m.me/' },
+        { name: 'WeChat', icon: 'fab fa-weixin', color: '#09B83E', urlPattern: '' },
+        { name: 'Signal', icon: 'fas fa-comment-dots', color: '#3A76F0', urlPattern: '' },
+        { name: 'Viber', icon: 'fab fa-viber', color: '#665CAC', urlPattern: '' },
+        { name: 'Line', icon: 'fab fa-line', color: '#00B900', urlPattern: '' },
+        { name: 'Skype', icon: 'fab fa-skype', color: '#00AFF0', urlPattern: 'skype:' },
+        { name: 'Discord', icon: 'fab fa-discord', color: '#5865F2', urlPattern: 'https://discord.gg/' },
+        { name: 'Slack', icon: 'fab fa-slack', color: '#4A154B', urlPattern: '' },
+        
+        // Social Networks
+        { name: 'Facebook', icon: 'fab fa-facebook', color: '#1877F2', urlPattern: 'https://facebook.com/' },
+        { name: 'Instagram', icon: 'fab fa-instagram', color: '#E4405F', urlPattern: 'https://instagram.com/' },
+        { name: 'Twitter/X', icon: 'fab fa-twitter', color: '#1DA1F2', urlPattern: 'https://twitter.com/' },
+        { name: 'LinkedIn', icon: 'fab fa-linkedin', color: '#0A66C2', urlPattern: 'https://linkedin.com/in/' },
+        { name: 'TikTok', icon: 'fab fa-tiktok', color: '#000000', urlPattern: 'https://tiktok.com/@' },
+        { name: 'Snapchat', icon: 'fab fa-snapchat', color: '#FFFC00', urlPattern: 'https://snapchat.com/add/' },
+        { name: 'Pinterest', icon: 'fab fa-pinterest', color: '#E60023', urlPattern: 'https://pinterest.com/' },
+        { name: 'Reddit', icon: 'fab fa-reddit', color: '#FF4500', urlPattern: 'https://reddit.com/u/' },
+        { name: 'Tumblr', icon: 'fab fa-tumblr', color: '#35465C', urlPattern: 'https://tumblr.com/' },
+        { name: 'VK', icon: 'fab fa-vk', color: '#0077FF', urlPattern: 'https://vk.com/' },
+        { name: 'Mastodon', icon: 'fab fa-mastodon', color: '#6364FF', urlPattern: '' },
+        { name: 'BlueSky', icon: 'fas fa-cloud', color: '#0085FF', urlPattern: '' },
+        { name: 'Threads', icon: 'fab fa-threads', color: '#000000', urlPattern: '' },
+        
+        // Professional
+        { name: 'GitHub', icon: 'fab fa-github', color: '#181717', urlPattern: 'https://github.com/' },
+        { name: 'GitLab', icon: 'fab fa-gitlab', color: '#FC6D26', urlPattern: 'https://gitlab.com/' },
+        { name: 'Behance', icon: 'fab fa-behance', color: '#1769FF', urlPattern: 'https://behance.net/' },
+        { name: 'Dribbble', icon: 'fab fa-dribbble', color: '#EA4C89', urlPattern: 'https://dribbble.com/' },
+        { name: 'Stack Overflow', icon: 'fab fa-stack-overflow', color: '#F58025', urlPattern: 'https://stackoverflow.com/users/' },
+        { name: 'Medium', icon: 'fab fa-medium', color: '#000000', urlPattern: 'https://medium.com/@' },
+        { name: 'Dev.to', icon: 'fab fa-dev', color: '#0A0A0A', urlPattern: 'https://dev.to/' },
+        { name: 'Hashnode', icon: 'fas fa-hashtag', color: '#2962FF', urlPattern: '' },
+        { name: 'CodePen', icon: 'fab fa-codepen', color: '#000000', urlPattern: 'https://codepen.io/' },
+        
+        // Content & Media
+        { name: 'YouTube', icon: 'fab fa-youtube', color: '#FF0000', urlPattern: 'https://youtube.com/@' },
+        { name: 'Twitch', icon: 'fab fa-twitch', color: '#9146FF', urlPattern: 'https://twitch.tv/' },
+        { name: 'Vimeo', icon: 'fab fa-vimeo', color: '#1AB7EA', urlPattern: 'https://vimeo.com/' },
+        { name: 'Spotify', icon: 'fab fa-spotify', color: '#1DB954', urlPattern: 'https://open.spotify.com/user/' },
+        { name: 'SoundCloud', icon: 'fab fa-soundcloud', color: '#FF3300', urlPattern: 'https://soundcloud.com/' },
+        { name: 'Apple Music', icon: 'fab fa-apple', color: '#FA243C', urlPattern: '' },
+        { name: 'Patreon', icon: 'fab fa-patreon', color: '#FF424D', urlPattern: 'https://patreon.com/' },
+        { name: 'Ko-fi', icon: 'fas fa-mug-hot', color: '#FF5E5B', urlPattern: 'https://ko-fi.com/' },
+        { name: 'Buy Me Coffee', icon: 'fas fa-coffee', color: '#FFDD00', urlPattern: '' },
+        
+        // Business & Shopping
+        { name: 'Website', icon: 'fas fa-globe', color: '#6366F1', urlPattern: 'https://' },
+        { name: 'Portfolio', icon: 'fas fa-briefcase', color: '#6366F1', urlPattern: '' },
+        { name: 'Blog', icon: 'fas fa-blog', color: '#6366F1', urlPattern: '' },
+        { name: 'Etsy', icon: 'fab fa-etsy', color: '#F1641E', urlPattern: 'https://etsy.com/shop/' },
+        { name: 'Amazon', icon: 'fab fa-amazon', color: '#FF9900', urlPattern: '' },
+        { name: 'eBay', icon: 'fab fa-ebay', color: '#E53238', urlPattern: '' },
+        { name: 'Shopify', icon: 'fab fa-shopify', color: '#96BF48', urlPattern: '' },
+        
+        // Other
+        { name: 'Linktree', icon: 'fas fa-link', color: '#43E55E', urlPattern: 'https://linktr.ee/' },
+        { name: 'Calendar', icon: 'fas fa-calendar', color: '#6366F1', urlPattern: '' },
+        { name: 'Location', icon: 'fas fa-map-marker-alt', color: '#EF4444', urlPattern: '' },
+        { name: 'Document', icon: 'fas fa-file', color: '#6366F1', urlPattern: '' },
+        { name: 'Download', icon: 'fas fa-download', color: '#10B981', urlPattern: '' },
+        { name: 'Custom Link', icon: 'fas fa-external-link-alt', color: '#6366F1', urlPattern: '' }
+    ];
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        setupUploadZone();
+        loadConfigUI();
+        initializeIconSelector();
+    });
+
+    // PIN Functions
+    function addDigit(digit) {
+        if (currentPin.length < 4) {
+            currentPin += digit;
+            updatePinDisplay();
+            if (currentPin.length === 4) {
+                checkPin();
+            }
+        }
+    }
+
+    function clearPin() {
+        currentPin = '';
+        updatePinDisplay();
+        document.getElementById('errorMsg').textContent = '';
+    }
+
+    function updatePinDisplay() {
+        const display = document.getElementById('pinDisplay');
+        display.textContent = '•'.repeat(currentPin.length) + '·'.repeat(4 - currentPin.length);
+    }
+
+    function checkPin() {
+        if (currentPin === Config.pin) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            loadAllData();
+        } else {
+            document.getElementById('errorMsg').textContent = '❌ Incorrect PIN';
+            setTimeout(clearPin, 1000);
+        }
+    }
+
+    function logout() {
+        currentPin = '';
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('adminDashboard').style.display = 'none';
+        clearPin();
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tab + 'Section').classList.add('active');
+        
+        if (tab === 'images') loadImages();
+        if (tab === 'projects') loadProjects();
+        if (tab === 'contacts') loadContacts();
+        if (tab === 'config') loadConfigUI();
+    }
+
+    async function loadAllData() {
+        updateSyncStatus('syncing', 'Loading data...');
+        
+        try {
+            await Promise.all([
+                loadImagesData(),
+                loadProjectsData(),
+                loadContactsData()
+            ]);
+            
+            updateFolderList();
+            loadImages();
+            updateSyncStatus('synced', 'Data loaded ✓');
+        } catch (error) {
+            console.error('Load error:', error);
+            updateSyncStatus('error', 'Load failed - using defaults');
+            
+            images = [];
+            folders = ['Uncategorized', 'Portfolio', 'UI-UX', 'Web-Design', 'Photography'];
+            projects = [];
+            contacts = [];
+            
+            updateFolderList();
+            loadImages();
+            
+            setTimeout(() => {
+                updateSyncStatus('synced', 'Ready');
+            }, 2000);
+        }
+    }
+
+    async function loadImagesData() {
+        try {
+            const response = await fetch('./data/images.json?t=' + Date.now());
+            if (response.ok) {
+                const data = await response.json();
+                images = data.images || [];
+                folders = data.folders || ['Uncategorized', 'Portfolio', 'UI-UX', 'Web-Design', 'Photography'];
+            } else {
+                console.warn('images.json not found, using defaults');
+            }
+        } catch (e) {
+            console.warn('Failed to load images.json:', e);
+        }
+    }
+
+    async function loadProjectsData() {
+        try {
+            const response = await fetch('./data/projects.json?t=' + Date.now());
+            if (response.ok) {
+                const data = await response.json();
+                projects = Array.isArray(data) ? data : [];
+            } else {
+                console.warn('projects.json not found, using defaults');
+            }
+        } catch (e) {
+            console.warn('Failed to load projects.json:', e);
+        }
+    }
+
+    async function loadContactsData() {
+        try {
+            const response = await fetch('./data/contacts.json?t=' + Date.now());
+            if (response.ok) {
+                const data = await response.json();
+                contacts = Array.isArray(data) ? data : [];
+            } else {
+                console.warn('contacts.json not found, using defaults');
+            }
+        } catch (e) {
+            console.warn('Failed to load contacts.json:', e);
+        }
+    }
+
+    function updateFolderList() {
+        const list = document.getElementById('folderList');
+        
+        const allCount = images.length;
+        const folderCounts = {};
+        
+        folders.forEach(f => {
+            folderCounts[f] = images.filter(img => img.folder === f).length;
+        });
+        
+        list.innerHTML = `
+            <div class="folder-item ${currentFolder === 'all' ? 'active' : ''}" onclick="selectFolder('all')">
+                <div class="folder-icon">📂</div>
+                <div class="folder-name">All Images</div>
+                <div class="folder-count">${allCount}</div>
+            </div>
+            ${folders.map(folder => `
+                <div class="folder-item ${currentFolder === folder ? 'active' : ''}" onclick="selectFolder('${folder}')">
+                    <div class="folder-icon">📁</div>
+                    <div class="folder-name">${folder}</div>
+                    <div class="folder-count">${folderCounts[folder] || 0}</div>
+                    ${folder !== 'Uncategorized' ? `<button class="folder-delete" onclick="deleteFolder('${folder}', event)">×</button>` : ''}
+                </div>
+            `).join('')}
+        `;
+    }
+
+    function selectFolder(folder) {
+        currentFolder = folder;
+        updateFolderList();
+        loadImages();
+    }
+
+    function openFolderModal() {
+        document.getElementById('folderModal').classList.add('active');
+        document.getElementById('folderNameInput').value = '';
+        document.getElementById('folderNameInput').focus();
+    }
+
+    function closeFolderModal() {
+        document.getElementById('folderModal').classList.remove('active');
+    }
+
+    function createFolder() {
+        const name = document.getElementById('folderNameInput').value.trim();
+        
+        if (!name) {
+            alert('❌ Please enter a folder name');
+            return;
+        }
+        
+        if (folders.includes(name)) {
+            alert('❌ Folder already exists');
+            return;
+        }
+        
+        folders.push(name);
+        updateFolderList();
+        syncToGitHub();
+        closeFolderModal();
+    }
+
+    function deleteFolder(folder, e) {
+        e.stopPropagation();
+        
+        const count = images.filter(img => img.folder === folder).length;
+        
+        if (count > 0) {
+            if (!confirm(`This folder contains ${count} image(s). Delete anyway? Images will be moved to Uncategorized.`)) {
+                return;
+            }
+            
+            images.forEach(img => {
+                if (img.folder === folder) {
+                    img.folder = 'Uncategorized';
+                }
+            });
+        }
+        
+        folders = folders.filter(f => f !== folder);
+        
+        if (currentFolder === folder) {
+            currentFolder = 'all';
+        }
+        
+        updateFolderList();
+        loadImages();
+        syncToGitHub();
+    }
+
+    function setupUploadZone() {
+        const zone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        zone.addEventListener('click', (e) => {
+            fileInput.click();
+        });
+        
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zone.classList.add('dragover');
+        });
+        
+        zone.addEventListener('dragleave', () => {
+            zone.classList.remove('dragover');
+        });
+        
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                handleFiles(files);
+            }
+            e.target.value = '';
+        });
+    }
+
+    function handleFiles(files) {
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const id = 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const image = {
+                    id: id,
+                    url: e.target.result,
+                    name: file.name,
+                    folder: currentFolder === 'all' ? 'Uncategorized' : currentFolder,
+                    uploadDate: new Date().toISOString()
+                };
+                
+                images.push(image);
+                loadImages();
+                syncToGitHub();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function loadImages() {
+        const grid = document.getElementById('imagesGrid');
+        
+        const filtered = currentFolder === 'all' 
+            ? images 
+            : images.filter(img => img.folder === currentFolder);
+        
+        if (filtered.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-icon">🖼️</div>
+                    <div class="empty-title">No images here</div>
+                    <div class="empty-text">Upload some images to get started</div>
+                </div>
+            `;
+            return;
+        }
+        
+        grid.innerHTML = filtered.map(img => `
+            <div class="image-card">
+                <img src="${img.url}" alt="${img.name}" class="image-preview">
+                <div class="image-info">
+                    <div class="image-name">${img.name}</div>
+                    <div class="image-folder">📁 ${img.folder}</div>
+                </div>
+                <div class="image-actions">
+                    <button style="background: var(--primary); color: white;" onclick="openCropModal('${img.id}')">✂️ Crop</button>
+                    <button style="background: var(--warning); color: white;" onclick="moveImage('${img.id}')">📁 Move</button>
+                    <button style="background: var(--danger); color: white;" onclick="deleteImage('${img.id}')">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openCropModal(imageId) {
+        const img = images.find(i => i.id === imageId);
+        if (!img) return;
+        
+        currentCropId = imageId;
+        
+        const cropImage = document.getElementById('cropImage');
+        cropImage.src = img.url;
+        
+        document.getElementById('cropModal').classList.add('active');
+        
+        setTimeout(() => {
+            if (cropper) {
+                cropper.destroy();
+            }
+            
+            cropper = new Cropper(cropImage, {
+                aspectRatio: NaN,
+                viewMode: 1,
+                autoCropArea: 1,
+                responsive: true
+            });
+        }, 100);
+    }
+
+    function closeCropModal() {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        document.getElementById('cropModal').classList.remove('active');
+        currentCropId = null;
+    }
+
+    function saveCrop() {
+        if (!cropper || !currentCropId) return;
+        
+        const canvas = cropper.getCroppedCanvas();
+        const croppedDataUrl = canvas.toDataURL();
+        
+        const img = images.find(i => i.id === currentCropId);
+        if (img) {
+            img.url = croppedDataUrl;
+            loadImages();
+            syncToGitHub();
+        }
+        
+        closeCropModal();
+    }
+
+    function moveImage(imageId) {
+        const img = images.find(i => i.id === imageId);
+        if (!img) return;
+        
+        const newFolder = prompt(`Move to folder:\n\nAvailable folders:\n${folders.join(', ')}`, img.folder);
+        
+        if (newFolder && folders.includes(newFolder)) {
+            img.folder = newFolder;
+            loadImages();
+            updateFolderList();
+            syncToGitHub();
+        } else if (newFolder) {
+            alert('❌ Folder does not exist');
+        }
+    }
+
+    function deleteImage(imageId) {
+        if (confirm('🗑️ Delete this image?')) {
+            images = images.filter(img => img.id !== imageId);
+            loadImages();
+            updateFolderList();
+            syncToGitHub();
+        }
+    }
+
+    function openProjectModal(projectId = null) {
+        document.getElementById('projectModal').classList.add('active');
+        
+        if (projectId) {
+            currentEditProject = projects.find(p => p.id === projectId);
+            document.getElementById('projectModalTitle').textContent = 'Edit Project';
+            document.getElementById('projectTitle').value = currentEditProject.title;
+            document.getElementById('projectDesc').value = currentEditProject.description;
+            document.getElementById('projectTech').value = currentEditProject.technologies.join(', ');
+            document.getElementById('projectUrl').value = currentEditProject.url || '';
+            selectedImages = [...currentEditProject.images];
+        } else {
+            currentEditProject = null;
+            document.getElementById('projectModalTitle').textContent = 'New Project';
+            document.getElementById('projectTitle').value = '';
+            document.getElementById('projectDesc').value = '';
+            document.getElementById('projectTech').value = '';
+            document.getElementById('projectUrl').value = '';
+            selectedImages = [];
+        }
+        
+        loadProjectImageSelector();
+    }
+
+    function closeProjectModal() {
+        document.getElementById('projectModal').classList.remove('active');
+        currentEditProject = null;
+        selectedImages = [];
+    }
+
+    function loadProjectImageSelector() {
+        const selector = document.getElementById('projectImageSelect');
+        const preview = document.getElementById('selectedPreview');
+        
+        selector.innerHTML = images.map(img => `
+            <div class="image-card ${selectedImages.includes(img.url) ? 'selected' : ''}" onclick="toggleImageSelection('${img.url}')">
+                <img src="${img.url}" alt="${img.name}" class="image-preview">
+            </div>
+        `).join('');
+        
+        preview.innerHTML = selectedImages.map(url => `
+            <img src="${url}" alt="Selected">
+        `).join('');
+    }
+
+    function toggleImageSelection(imageUrl) {
+        const index = selectedImages.indexOf(imageUrl);
+        if (index > -1) {
+            selectedImages.splice(index, 1);
+        } else {
+            selectedImages.push(imageUrl);
+        }
+        loadProjectImageSelector();
+    }
+
+    function saveProject() {
+        const title = document.getElementById('projectTitle').value.trim();
+        const description = document.getElementById('projectDesc').value.trim();
+        const techString = document.getElementById('projectTech').value.trim();
+        const url = document.getElementById('projectUrl').value.trim();
+        
+        if (!title || !description) {
+            alert('❌ Please fill in title and description');
+            return;
+        }
+        
+        const technologies = techString.split(',').map(t => t.trim()).filter(t => t);
+        
+        if (currentEditProject) {
+            currentEditProject.title = title;
+            currentEditProject.description = description;
+            currentEditProject.technologies = technologies;
+            currentEditProject.url = url;
+            currentEditProject.images = [...selectedImages];
+        } else {
+            const project = {
+                id: 'proj_' + Date.now(),
+                title,
+                description,
+                technologies,
+                url,
+                images: [...selectedImages],
+                createdDate: new Date().toISOString()
+            };
+            projects.push(project);
+        }
+        
+        loadProjects();
+        syncToGitHub();
+        closeProjectModal();
+    }
+
+    function loadProjects() {
+        const grid = document.getElementById('projectsGrid');
+        
+        if (projects.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-icon">💼</div>
+                    <div class="empty-title">No projects yet</div>
+                    <div class="empty-text">Create your first project</div>
+                </div>
+            `;
+            return;
+        }
+        
+        grid.innerHTML = projects.map(project => {
+            const projectImages = Array.isArray(project.images) ? project.images : [];
+            
+            return `
+                <div class="project-card">
+                    <div class="project-slider" id="slider-${project.id}">
+                        ${projectImages.length > 0 ? projectImages.map((imgUrl, i) => `
+                            <div class="project-slide ${i === 0 ? 'active' : ''}">
+                                <img src="${imgUrl}" alt="${project.title}">
+                            </div>
+                        `).join('') : `
+                            <div class="project-slide active">
+                                <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:60px;background:#f0f0f0;">📁</div>
+                            </div>
+                        `}
+                    </div>
+                    <div class="project-body">
+                        <h3 class="project-title">${project.title}</h3>
+                        <p class="project-desc">${project.description}</p>
+                        <div class="project-actions">
+                            <button class="btn btn-primary" onclick="openProjectModal('${project.id}')">✏️ Edit</button>
+                            <button class="btn btn-danger" onclick="deleteProject('${project.id}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        projects.forEach(project => {
+            if (project.images && project.images.length > 1) {
+                startSlider(project.id, project.images.length);
+            }
+        });
+    }
+
+    function startSlider(id, count) {
+        if (count <= 1) return;
+        
+        let current = 0;
+        const slider = document.getElementById(`slider-${id}`);
+        if (!slider) return;
+        
+        setInterval(() => {
+            const slides = slider.querySelectorAll('.project-slide');
+            if (slides.length === 0) return;
+            
+            slides[current].classList.remove('active');
+            current = (current + 1) % count;
+            slides[current].classList.add('active');
+        }, 3000);
+    }
+
+    function deleteProject(id) {
+        if (confirm('🗑️ Delete this project?')) {
+            projects = projects.filter(p => p.id !== id);
+            loadProjects();
+            syncToGitHub();
+        }
+    }
+
+    // Contact Modal Functions
+    function initializeIconSelector() {
+        const iconGrid = document.getElementById('iconGrid');
+        
+        iconGrid.innerHTML = socialPlatforms.map(platform => `
+            <div class="icon-option" onclick="selectPlatform('${platform.name}')" data-platform="${platform.name.toLowerCase()}">
+                <i class="${platform.icon}" style="color: ${platform.color};"></i>
+                <span class="icon-option-name">${platform.name}</span>
+            </div>
+        `).join('');
+    }
+
+    function toggleIconDropdown() {
+        const dropdown = document.getElementById('iconDropdown');
+        dropdown.classList.toggle('active');
+        
+        if (dropdown.classList.contains('active')) {
+            setTimeout(() => {
+                document.addEventListener('click', closeIconDropdownOutside);
+            }, 100);
+        }
+    }
+
+    function closeIconDropdownOutside(e) {
+        const dropdown = document.getElementById('iconDropdown');
+        const preview = document.getElementById('iconPreview');
+        
+        if (!dropdown.contains(e.target) && !preview.contains(e.target)) {
+            dropdown.classList.remove('active');
+            document.removeEventListener('click', closeIconDropdownOutside);
+        }
+    }
+
+    function selectPlatform(platformName) {
+        const platform = socialPlatforms.find(p => p.name === platformName);
+        if (!platform) return;
+        
+        selectedPlatform = platform;
+        
+        document.getElementById('selectedIcon').className = platform.icon;
+        document.getElementById('selectedIcon').style.color = platform.color;
+        document.getElementById('selectedPlatform').textContent = platform.name;
+        
+        const nameInput = document.getElementById('contactName');
+        if (!nameInput.value) {
+            nameInput.value = platform.name;
+        }
+        
+        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+        event.target.closest('.icon-option').classList.add('selected');
+        
+        document.getElementById('iconDropdown').classList.remove('active');
+        document.removeEventListener('click', closeIconDropdownOutside);
+    }
+
+    function filterIcons() {
+        const searchTerm = document.getElementById('iconSearchInput').value.toLowerCase();
+        const options = document.querySelectorAll('.icon-option');
+        
+        options.forEach(option => {
+            const platformName = option.getAttribute('data-platform');
+            if (platformName.includes(searchTerm)) {
+                option.style.display = 'flex';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+    }
+
+    function openContactModal() {
+        document.getElementById('contactModal').classList.add('active');
+        
+        selectedPlatform = { icon: 'fas fa-envelope', name: 'Email', color: '#6366F1', urlPattern: 'mailto:' };
+        document.getElementById('selectedIcon').className = 'fas fa-envelope';
+        document.getElementById('selectedIcon').style.color = '#6366F1';
+        document.getElementById('selectedPlatform').textContent = 'Email';
+        
+        document.getElementById('contactName').value = '';
+        document.getElementById('contactValue').value = '';
+        document.getElementById('contactMessage').value = '';
+        
+        document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+    }
+
+    function closeContactModal() {
+        document.getElementById('contactModal').classList.remove('active');
+        document.getElementById('iconDropdown').classList.remove('active');
+    }
+
+    function saveContact() {
+        const name = document.getElementById('contactName').value.trim();
+        const value = document.getElementById('contactValue').value.trim();
+        const message = document.getElementById('contactMessage').value.trim();
+        
+        if (!name || !value) {
+            alert('❌ Please fill in label and value fields');
+            return;
+        }
+        
+        let link = value;
+        if (selectedPlatform.urlPattern) {
+            if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('mailto:') || value.startsWith('tel:')) {
+                link = value;
+            } else {
+                link = selectedPlatform.urlPattern + value;
+            }
+        }
+        
+        const contact = {
+            id: 'contact_' + Date.now(),
+            icon: selectedPlatform.icon,
+            iconColor: selectedPlatform.color,
+            platform: selectedPlatform.name,
+            label: name,
+            value: value,
+            link: link,
+            message: message,
+            date: new Date().toISOString()
+        };
+        
+        contacts.push(contact);
+        loadContacts();
+        syncToGitHub();
+        closeContactModal();
+    }
+
+    function loadContacts() {
+        const list = document.getElementById('contactsList');
+        
+        if (contacts.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <div class="empty-icon">📧</div>
+                    <div class="empty-title">No contacts yet</div>
+                    <div class="empty-text">Add your social media and contact information</div>
+                </div>
+            `;
+            return;
+        }
+        
+        list.innerHTML = contacts.map(contact => `
+            <div class="contact-card">
+                <div class="contact-header">
+                    <div>
+                        <div class="contact-icon-display">
+                            <i class="${contact.icon}" style="color: ${contact.iconColor || '#6366F1'};"></i>
+                        </div>
+                        <div class="contact-name">${contact.label || contact.name || 'Unknown'}</div>
+                        <div class="contact-email">${contact.value || contact.email || ''}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteContact('${contact.id}')">🗑️</button>
+                </div>
+                ${contact.message ? `<div class="contact-message">${contact.message}</div>` : ''}
+                <div class="contact-date">${contact.date ? new Date(contact.date).toLocaleString() : ''}</div>
+            </div>
+        `).join('');
+    }
+
+    function deleteContact(id) {
+        if (confirm('🗑️ Delete this contact?')) {
+            contacts = contacts.filter(c => c.id !== id);
+            loadContacts();
+            syncToGitHub();
+        }
+    }
+
+    function loadConfigUI() {
+        document.getElementById('githubToken').value = Config.token;
+        document.getElementById('githubRepo').value = Config.repo;
+        document.getElementById('adminPin').value = Config.pin;
+    }
+
+    function saveConfig() {
+        Config.token = document.getElementById('githubToken').value.trim();
+        Config.repo = document.getElementById('githubRepo').value.trim();
+        Config.pin = document.getElementById('adminPin').value.trim() || '1234';
+        
+        if (Config.save()) {
+            alert('✅ Configuration saved successfully!\n\nYou can now sync to GitHub.');
+        } else {
+            alert('⚠️ Configuration saved in memory only\n\n(localStorage blocked - config will be lost on page refresh)');
+        }
+    }
+
+    async function syncToGitHub() {
+        if (!Config.isConfigured()) {
+            updateSyncStatus('error', 'GitHub not configured');
+            setTimeout(() => {
+                updateSyncStatus('synced', 'Configure in Settings');
+            }, 2000);
+            return;
+        }
+        
+        updateSyncStatus('syncing', 'Pushing to GitHub...');
+        
+        try {
+            await uploadToGitHub('data/images.json', {
+                images: images,
+                folders: folders
+            });
+            
+            await uploadToGitHub('data/projects.json', projects);
+            
+            await uploadToGitHub('data/contacts.json', contacts);
+            
+            updateSyncStatus('synced', 'Synced to GitHub ✓');
+            
+            setTimeout(() => {
+                updateSyncStatus('synced', 'All changes saved');
+            }, 2000);
+        } catch (error) {
+            console.error('GitHub sync error:', error);
+            updateSyncStatus('error', 'Sync failed: ' + error.message);
+            setTimeout(() => {
+                updateSyncStatus('synced', 'Click to retry');
+            }, 3000);
+        }
+    }
+
+    async function uploadToGitHub(path, data) {
+        const url = `https://api.github.com/repos/${Config.repo}/contents/${path}`;
+        
+        let sha = null;
+        try {
+            const getResponse = await fetch(url, {
+                headers: {
+                    'Authorization': `token ${Config.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (getResponse.ok) {
+                const fileData = await getResponse.json();
+                sha = fileData.sha;
+            }
+        } catch (e) {
+        }
+        
+        const content = JSON.stringify(data, null, 2);
+        const encodedContent = btoa(unescape(encodeURIComponent(content)));
+        
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${Config.token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: `Update ${path} via admin panel`,
+                content: encodedContent,
+                sha: sha
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || `HTTP ${response.status}`);
+        }
+        
+        return response.json();
+    }
+
+    function updateSyncStatus(status, text) {
+        const statusEl = document.getElementById('syncStatus');
+        const textEl = document.getElementById('syncText');
+        
+        statusEl.className = 'sync-status ' + status;
+        textEl.textContent = text;
+    }
+    </script>
+</body>
+  </html>
