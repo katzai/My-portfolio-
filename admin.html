@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Portfolio Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F9FA;
+            --text-primary: #1A1A1A;
+            --text-secondary: #6B6B6B;
+            --accent: #6366F1;
+            --danger: #EF4444;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --border: #E5E7EB;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 60px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .keypad-display {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            letter-spacing: 12px;
+            margin-bottom: 30px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keypad-btn {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .keypad-btn:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+
+        .keypad-btn:active {
+            transform: scale(0.95);
+        }
+
+        .clear-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+        }
+
+        .clear-btn:hover {
+            background: #DC2626;
+        }
+
+        /* GitHub Setup Banner */
+        .github-setup-banner {
+            background: linear-gradient(135deg, var(--warning) 0%, #F97316 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .github-setup-banner.show {
+            display: block;
+        }
+
+        .github-setup-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .github-setup-text {
+            font-size: 14px;
+            margin-bottom: 16px;
+            opacity: 0.95;
+        }
+
+        .github-setup-btn {
+            background: white;
+            color: var(--warning);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .github-setup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .logout-btn, .sync-btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .sync-btn {
+            background: var(--success);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-btn:hover, .logout-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .sync-btn.syncing {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .sync-icon {
+            display: inline-block;
+            animation: rotate 1s linear infinite;
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-badge {
+            background: var(--success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .stat-badge.warning {
+            background: var(--warning);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--bg-secondary);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .add-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Item Cards */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .item-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-header {
+            margin-bottom: 12px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .item-subtitle {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .item-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .item-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .item-image {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .item-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .item-btn-edit {
+            background: var(--accent);
+            color: white;
+        }
+
+        .item-btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .item-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Image Gallery */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .image-card {
+            position: relative;
+            aspect-ratio: 3/4;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 16px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .image-card:hover .image-overlay {
+            transform: translateY(0);
+        }
+
+        .image-name {
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .image-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .form-btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        .form-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .form-btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .form-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Image Selection Grid */
+        .image-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .selectable-image {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .selectable-image:hover {
+            transform: scale(1.05);
+        }
+
+        .selectable-image.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .selectable-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-check {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .selectable-image.selected .image-check {
+            display: flex;
+        }
+
+        /* Bulk Crop Modal Styles */
+        .bulk-crop-modal .modal-content {
+            max-width: 900px;
+        }
+
+        .crop-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        #currentCropContainer {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #currentCropImage {
+            max-width: 100%;
+            max-height: 500px;
+            display: block;
+        }
+
+        #pendingCropsList {
+            max-height: 500px;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .pending-crop-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pending-crop-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .pending-crop-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .pending-crop-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .pending-crop-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        #cropProgress {
+            background: var(--accent);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .crop-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .crop-btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        .crop-btn-primary {
+            background: var(--success);
+            color: white;
+        }
+
+        .crop-btn-secondary {
+            background: var(--warning);
+            color: white;
+        }
+
+        .crop-btn-finish {
+            background: var(--accent);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .crop-btn-cancel {
+            background: var(--danger);
+            color: white;
+        }
+
+        .crop-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Message Notifications */
+        .message-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .message {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+            min-width: 300px;
+            transform: translateX(500px);
+            transition: transform 0.3s ease;
+        }
+
+        .message.show {
+            transform: translateX(0);
+        }
+
+        .message.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .message.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .message.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 40px 30px;
+            }
+
+            .admin-header {
+                padding: 20px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .crop-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .message-container {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+
+            .message {
+                min-width: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Message Container -->
+    <div class="message-container" id="messageContainer"></div>
+
+    <!-- Login Screen -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">🔐 Admin Access</h1>
+            <p class="login-subtitle">Enter your 4-digit PIN to continue</p>
+            
+            <div class="keypad-display" id="pinDisplay">••••</div>
+            
+            <div class="keypad-grid">
+                <button class="keypad-btn" onclick="addPin('1')">1</button>
+                <button class="keypad-btn" onclick="addPin('2')">2</button>
+                <button class="keypad-btn" onclick="addPin('3')">3</button>
+                <button class="keypad-btn" onclick="addPin('4')">4</button>
+                <button class="keypad-btn" onclick="addPin('5')">5</button>
+                <button class="keypad-btn" onclick="addPin('6')">6</button>
+                <button class="keypad-btn" onclick="addPin('7')">7</button>
+                <button class="keypad-btn" onclick="addPin('8')">8</button>
+                <button class="keypad-btn" onclick="addPin('9')">9</button>
+                <button class="keypad-btn clear-btn" onclick="clearPin()">Clear</button>
+                <button class="keypad-btn" onclick="addPin('0')">0</button>
+                <button class="keypad-btn" onclick="deletePin()">⌫</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <!-- GitHub Setup Banner -->
+        <div class="github-setup-banner" id="githubSetupBanner">
+            <div class="github-setup-title">⚠️ GitHub Not Configured</div>
+            <div class="github-setup-text">
+                Connect your GitHub repository to enable auto-sync. Your portfolio data will be stored safely in your repo.
+            </div>
+            <button class="github-setup-btn" onclick="showGitHubSetupModal()">⚙️ Configure GitHub</button>
+        </div>
+
+        <!-- Header -->
+        <div class="admin-header">
+            <h1 class="admin-title">📊 Portfolio Admin</h1>
+            <div class="admin-actions">
+                <button class="sync-btn" id="syncBtn" onclick="syncToGitHub()">
+                    <span id="syncIcon">🔄</span>
+                    <span id="syncText">Sync to GitHub</span>
+                </button>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">📁 Projects</span>
+                    <span class="stat-badge warning" id="projectsSyncStatus">Local</span>
+                </div>
+                <div class="stat-number" id="projectCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">📞 Contacts</span>
+                    <span class="stat-badge warning" id="contactsSyncStatus">Local</span>
+                </div>
+                <div class="stat-number" id="contactCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">🖼️ Images</span>
+                    <span class="stat-badge warning" id="imagesSyncStatus">Local</span>
+                </div>
+                <div class="stat-number" id="imageCount">0</div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">📁 Projects</h2>
+                <button class="add-btn" onclick="showAddProjectModal()">➕ Add New Project</button>
+            </div>
+            <div class="items-grid" id="projectsList"></div>
+        </div>
+
+        <!-- Contacts Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">📞 Contact Methods</h2>
+                <button class="add-btn" onclick="showAddContactModal()">➕ Add New Contact</button>
+            </div>
+            <div class="items-grid" id="contactsList"></div>
+        </div>
+
+        <!-- Images Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">🖼️ Image Library</h2>
+                <label class="add-btn" style="cursor: pointer;">
+                    ➕ Upload Images
+                    <input type="file" id="imageUpload" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                </label>
+            </div>
+            <div class="images-grid" id="imagesList"></div>
+        </div>
+    </div>
+
+    <!-- GitHub Setup Modal -->
+    <div class="modal" id="githubSetupModal">
+        <div class="modal-content">
+            <h2 class="modal-title">⚙️ GitHub Configuration</h2>
+            
+            <div class="form-group">
+                <label class="form-label">GitHub Username *</label>
+                <input type="text" class="form-input" id="githubUsername" placeholder="your-username">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Repository Name *</label>
+                <input type="text" class="form-input" id="githubRepo" placeholder="portfolio-repo">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Branch (optional)</label>
+                <input type="text" class="form-input" id="githubBranch" placeholder="main" value="main">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Personal Access Token * <a href="https://github.com/settings/tokens" target="_blank" style="color: var(--accent); font-size: 12px;">(Get Token)</a></label>
+                <input type="password" class="form-input" id="githubToken" placeholder="ghp_xxxxxxxxxxxxx">
+            </div>
+            
+            <div class="form-actions">
+                <button class="form-btn form-btn-secondary" onclick="testGitHubConnection()">🧪 Test Connection</button>
+                <button class="form-btn form-btn-primary" onclick="saveGitHubConfig()">💾 Save Config</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="projectModalTitle">Add New Project</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Project Title *</label>
+                <input type="text" class="form-input" id="projectTitle" placeholder="My Awesome Project">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Project Type *</label>
+                <input type="text" class="form-input" id="projectType" placeholder="Web App, Mobile App, etc.">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea class="form-textarea" id="projectDescription" placeholder="Describe your project..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Project Link (optional)</label>
+                <input type="url" class="form-input" id="projectLink" placeholder="https://example.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Select Images (click to select multiple)</label>
+                <div class="image-selection-grid" id="projectImageSelection"></div>
+            </div>
+            
+            <div class="form-actions">
+                <button class="form-btn form-btn-secondary" onclick="closeModal('projectModal')">Cancel</button>
+                <button class="form-btn form-btn-primary" onclick="saveProject()">💾 Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="contactModalTitle">Add New Contact</h2>
+            
+            <div class="form-group">
+                <label class="form-label">Icon (emoji) *</label>
+                <input type="text" class="form-input" id="contactIcon" placeholder="📧" maxlength="2">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Label *</label>
+                <input type="text" class="form-input" id="contactLabel" placeholder="Email">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Value *</label>
+                <input type="text" class="form-input" id="contactValue" placeholder="your.email@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Link *</label>
+                <input type="url" class="form-input" id="contactLink" placeholder="mailto:your.email@example.com">
+            </div>
+            
+            <div class="form-actions">
+                <button class="form-btn form-btn-secondary" onclick="closeModal('contactModal')">Cancel</button>
+                <button class="form-btn form-btn-primary" onclick="saveContact()">💾 Save Contact</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Crop Modal -->
+    <div class="modal bulk-crop-modal" id="bulkCropModal">
+        <div class="modal-content">
+            <h2 class="modal-title">✂️ Crop Your Images</h2>
+            
+            <div id="cropProgress">📸 Processing images...</div>
+            
+            <div class="crop-layout">
+                <div id="currentCropContainer">
+                    <img id="currentCropImage" alt="Image to crop">
+                </div>
+                <div id="pendingCropsList"></div>
+            </div>
+            
+            <div class="crop-controls">
+                <button class="crop-btn crop-btn-secondary" id="skipCropBtn" onclick="skipCurrentCrop()">⏭️ Skip Crop</button>
+                <button class="crop-btn crop-btn-primary" id="applyCropBtn" onclick="applyCropAndNext()">✂️ Crop & Next</button>
+                <button class="crop-btn crop-btn-finish" id="finishCropBtn" onclick="finishCropping()" style="display: none;">✅ Finish & Save</button>
+                <button class="crop-btn crop-btn-cancel" onclick="closeBulkCropModal()">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script>
+        // BROWSER-PROOF ADMIN PANEL
+        // GitHub REST API integration - NO localStorage for persistence
+        
+        const ADMIN_PIN = '1234'; // CHANGE THIS!
+        
+        // Session-only state (resets on page reload)
+        let sessionProjects = [];
+        let sessionContacts = [];
+        let sessionImages = [];
+        let sessionGitHubConfig = null;
+        let cropper = null;
+        let editingProjectIndex = -1;
+        let editingContactIndex = -1;
+
+        // Load data from JSON files on admin load
+        async function loadInitialData() {
+            try {
+                const projectsRes = await fetch('./data/projects.json');
+                if (projectsRes.ok) sessionProjects = await projectsRes.json();
+                
+                const contactsRes = await fetch('./data/contacts.json');
+                if (contactsRes.ok) sessionContacts = await contactsRes.json();
+                
+                const imagesRes = await fetch('./data/images.json');
+                if (imagesRes.ok) sessionImages = await imagesRes.json();
+            } catch (e) {
+                console.warn('Could not load initial data:', e);
+            }
+            
+            renderProjects();
+            renderContacts();
+            renderImages();
+            updateStats();
+        }
+
+        // PIN verification
+        let enteredPin = '';
+
+        function addDigit(digit) {
+            if (enteredPin.length < 6) {
+                enteredPin += digit;
+                document.getElementById('pinDisplay').textContent = '•'.repeat(enteredPin.length);
+                
+                if (enteredPin.length === ADMIN_PIN.length) {
+                    verifyPin();
+                }
+            }
+        }
+
+        function clearPin() {
+            enteredPin = '';
+            document.getElementById('pinDisplay').textContent = '';
+        }
+
+        function verifyPin() {
+            if (enteredPin === ADMIN_PIN) {
+                document.querySelector('.login-container').style.display = 'none';
+                document.querySelector('.admin-panel').style.display = 'block';
+                loadInitialData();
+            } else {
+                document.getElementById('pinDisplay').textContent = '✗ Wrong PIN';
+                document.getElementById('pinDisplay').style.color = 'var(--danger)';
+                setTimeout(clearPin, 1000);
+            }
+        }
+
+        function logout() {
+            window.location.href = 'index.html';
+        }
+
+        // GitHub Configuration
+        function showGitHubSetup() {
+            document.getElementById('githubModal').classList.add('active');
+        }
+
+        function saveGitHubConfig() {
+            const username = document.getElementById('githubUsername').value.trim();
+            const repo = document.getElementById('githubRepo').value.trim();
+            const token = document.getElementById('githubToken').value.trim();
+            const branch = document.getElementById('githubBranch').value.trim() || 'main';
+            
+            if (!username || !repo || !token) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            sessionGitHubConfig = { username, repo, token, branch };
+            closeModal('githubModal');
+            showMessage('GitHub configured successfully! You can now sync your changes.', 'success');
+            updateSyncStatus();
+        }
+
+        function updateSyncStatus() {
+            const banner = document.querySelector('.github-setup-banner');
+            if (sessionGitHubConfig) {
+                banner.classList.remove('show');
+            } else {
+                banner.classList.add('show');
+            }
+        }
+
+        // Sync to GitHub
+        async function syncToGitHub() {
+            if (!sessionGitHubConfig) {
+                alert('Please configure GitHub first');
+                showGitHubSetup();
+                return;
+            }
+            
+            const syncBtn = document.querySelector('.sync-btn');
+            syncBtn.classList.add('syncing');
+            syncBtn.textContent = '⏳ Syncing...';
+            
+            try {
+                const data = {
+                    projects: sessionProjects,
+                    contacts: sessionContacts,
+                    images: sessionImages
+                };
+                
+                // Push each JSON file to GitHub
+                await pushToGitHub('data/projects.json', JSON.stringify(sessionProjects, null, 2));
+                await pushToGitHub('data/contacts.json', JSON.stringify(sessionContacts, null, 2));
+                await pushToGitHub('data/images.json', JSON.stringify(sessionImages, null, 2));
+                
+                showMessage('✓ Successfully synced to GitHub!', 'success');
+            } catch (error) {
+                showMessage('✗ Sync failed: ' + error.message, 'error');
+            } finally {
+                syncBtn.classList.remove('syncing');
+                syncBtn.innerHTML = '💾 Sync to GitHub';
+            }
+        }
+
+        async function pushToGitHub(path, content) {
+            const { username, repo, token, branch } = sessionGitHubConfig;
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+            
+            // Get current file SHA (required for updates)
+            let sha = null;
+            try {
+                const getRes = await fetch(url, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (getRes.ok) {
+                    const data = await getRes.json();
+                    sha = data.sha;
+                }
+            } catch (e) {
+                // File doesn't exist yet, that's okay
+            }
+            
+            // Push file
+            const body = {
+                message: `Update ${path}`,
+                content: btoa(unescape(encodeURIComponent(content))),
+                branch: branch
+            };
+            if (sha) body.sha = sha;
+            
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'GitHub push failed');
+            }
+        }
+
+        // Project Management
+        function renderProjects() {
+            const grid = document.getElementById('projectsList');
+            if (sessionProjects.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);grid-column:1/-1;">No projects yet. Click "Add New Project" to get started!</p>';
+                return;
+            }
+            
+            grid.innerHTML = sessionProjects.map((p, i) => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <h3 class="item-title">${p.title}</h3>
+                        <p class="item-subtitle">${p.type || 'Project'}</p>
+                    </div>
+                    <p class="item-description">${p.description}</p>
+                    ${p.images && p.images.length > 0 ? `
+                        <div class="item-images">
+                            ${p.images.slice(0, 4).map(img => `
+                                <div class="item-image"><img src="${img}" alt=""></div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="item-actions">
+                        <button class="item-btn item-btn-edit" onclick="editProject(${i})">✏️ Edit</button>
+                        <button class="item-btn item-btn-delete" onclick="deleteProject(${i})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddProject() {
+            editingProjectIndex = -1;
+            document.getElementById('projectModalTitle').textContent = 'Add New Project';
+            document.getElementById('projectTitle').value = '';
+            document.getElementById('projectType').value = '';
+            document.getElementById('projectDescription').value = '';
+            document.getElementById('projectLink').value = '';
+            document.getElementById('projectModal').classList.add('active');
+            renderImageSelection('projectImagesGrid', []);
+        }
+
+        function editProject(index) {
+            editingProjectIndex = index;
+            const p = sessionProjects[index];
+            document.getElementById('projectModalTitle').textContent = 'Edit Project';
+            document.getElementById('projectTitle').value = p.title;
+            document.getElementById('projectType').value = p.type || '';
+            document.getElementById('projectDescription').value = p.description;
+            document.getElementById('projectLink').value = p.link || '';
+            document.getElementById('projectModal').classList.add('active');
+            renderImageSelection('projectImagesGrid', p.images || []);
+        }
+
+        function saveProject() {
+            const title = document.getElementById('projectTitle').value.trim();
+            const type = document.getElementById('projectType').value.trim();
+            const description = document.getElementById('projectDescription').value.trim();
+            const link = document.getElementById('projectLink').value.trim();
+            const images = getSelectedImages('projectImagesGrid');
+            
+            if (!title || !description) {
+                showMessage('Please fill in required fields', 'error');
+                return;
+            }
+            
+            const project = { title, type, description, link, images };
+            
+            if (editingProjectIndex >= 0) {
+                sessionProjects[editingProjectIndex] = project;
+            } else {
+                sessionProjects.push(project);
+            }
+            
+            closeModal('projectModal');
+            renderProjects();
+            updateStats();
+            showMessage('Project saved! Click "Sync to GitHub" to publish.', 'success');
+        }
+
+        function deleteProject(index) {
+            if (confirm('Delete this project?')) {
+                sessionProjects.splice(index, 1);
+                renderProjects();
+                updateStats();
+                showMessage('Project deleted', 'success');
+            }
+        }
+
+        // Contact Management
+        function renderContacts() {
+            const grid = document.getElementById('contactsList');
+            if (sessionContacts.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);grid-column:1/-1;">No contacts yet. Click "Add New Contact" to get started!</p>';
+                return;
+            }
+            
+            grid.innerHTML = sessionContacts.map((c, i) => `
+                <div class="item-card">
+                    <div class="item-header">
+                        <h3 class="item-title">${c.icon} ${c.label}</h3>
+                    </div>
+                    <p class="item-description">${c.value}</p>
+                    <p style="font-size:13px;color:var(--accent);margin-bottom:12px;">🔗 ${c.link}</p>
+                    <div class="item-actions">
+                        <button class="item-btn item-btn-edit" onclick="editContact(${i})">✏️ Edit</button>
+                        <button class="item-btn item-btn-delete" onclick="deleteContact(${i})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddContact() {
+            editingContactIndex = -1;
+            document.getElementById('contactModalTitle').textContent = 'Add New Contact';
+            document.getElementById('contactIcon').value = '';
+            document.getElementById('contactLabel').value = '';
+            document.getElementById('contactValue').value = '';
+            document.getElementById('contactLink').value = '';
+            document.getElementById('contactModal').classList.add('active');
+        }
+
+        function editContact(index) {
+            editingContactIndex = index;
+            const c = sessionContacts[index];
+            document.getElementById('contactModalTitle').textContent = 'Edit Contact';
+            document.getElementById('contactIcon').value = c.icon;
+            document.getElementById('contactLabel').value = c.label;
+            document.getElementById('contactValue').value = c.value;
+            document.getElementById('contactLink').value = c.link;
+            document.getElementById('contactModal').classList.add('active');
+        }
+
+        function saveContact() {
+            const icon = document.getElementById('contactIcon').value.trim();
+            const label = document.getElementById('contactLabel').value.trim();
+            const value = document.getElementById('contactValue').value.trim();
+            const link = document.getElementById('contactLink').value.trim();
+            
+            if (!icon || !label || !value || !link) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            const contact = { icon, label, value, link };
+            
+            if (editingContactIndex >= 0) {
+                sessionContacts[editingContactIndex] = contact;
+            } else {
+                sessionContacts.push(contact);
+            }
+            
+            closeModal('contactModal');
+            renderContacts();
+            updateStats();
+            showMessage('Contact saved!', 'success');
+        }
+
+        function deleteContact(index) {
+            if (confirm('Delete this contact?')) {
+                sessionContacts.splice(index, 1);
+                renderContacts();
+                updateStats();
+                showMessage('Contact deleted', 'success');
+            }
+        }
+
+        // Image Management
+        function renderImages() {
+            const grid = document.getElementById('imagesList');
+            if (sessionImages.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);grid-column:1/-1;">No images yet. Click "Upload Image" to add one!</p>';
+                return;
+            }
+            
+            grid.innerHTML = sessionImages.map((img, i) => `
+                <div class="image-card">
+                    <img src="${img.data}" alt="${img.name}">
+                    <div class="image-overlay">
+                        <div class="image-name">${img.name}</div>
+                        <button class="image-delete" onclick="deleteImage(${i})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showImageUpload() {
+            document.getElementById('imageUploadModal').classList.add('active');
+        }
+
+        function handleImageSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = document.getElementById('cropImage');
+                img.src = event.target.result;
+                img.style.display = 'block';
+                
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(img, {
+                    aspectRatio: 16 / 9,
+                    viewMode: 1
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveImage() {
+            if (!cropper) {
+                showMessage('Please select an image first', 'error');
+                return;
+            }
+            
+            const canvas = cropper.getCroppedCanvas();
+            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+            const name = document.getElementById('imageFile').files[0].name;
+            
+            sessionImages.push({ name, data: imageData });
+            
+            closeModal('imageUploadModal');
+            renderImages();
+            updateStats();
+            showMessage('Image uploaded!', 'success');
+        }
+
+        function deleteImage(index) {
+            if (confirm('Delete this image?')) {
+                sessionImages.splice(index, 1);
+                renderImages();
+                updateStats();
+                showMessage('Image deleted', 'success');
+            }
+        }
+
+        // Image Selection for Projects
+        function renderImageSelection(containerId, selectedImages) {
+            selectedImages = selectedImages || [];
+            const container = document.getElementById(containerId);
+            
+            if (sessionImages.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);grid-column:1/-1;">No images available. Upload images first!</p>';
+                return;
+            }
+            
+            container.innerHTML = sessionImages.map((img, i) => {
+                const isSelected = selectedImages.includes(img.data);
+                return `
+                    <div class="selectable-image${isSelected ? ' selected' : ''}" 
+                         data-img-index="${i}" onclick="toggleImageSelection(this, ${i}, '${containerId}')">
+                        <img src="${img.data}" alt="${img.name}">
+                        <div class="image-check">✓</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleImageSelection(element) {
+            element.classList.toggle('selected');
+        }
+
+        function getSelectedImages(containerId) {
+            const container = document.getElementById(containerId);
+            const selected = container.querySelectorAll('.selectable-image.selected');
+            return Array.from(selected).map(el => {
+                const index = parseInt(el.getAttribute('data-img-index'));
+                return sessionImages[index].data;
+            });
+        }
+
+        // UI Helpers
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('projectCount').textContent = sessionProjects.length;
+            document.getElementById('contactCount').textContent = sessionContacts.length;
+            document.getElementById('imageCount').textContent = sessionImages.length;
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const msg = document.createElement('div');
+            msg.className = `message ${type} show`;
+            msg.textContent = message;
+            container.appendChild(msg);
+            
+            setTimeout(() => {
+                msg.classList.remove('show');
+                setTimeout(() => msg.remove(), 300);
+            }, 3000);
+        }
+
+        // Modal background click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', e => {
+                if (e.target === modal) closeModal(modal.id);
+            });
+        });
+
+        // Initialize
+        updateSyncStatus();
+</script>
+</body>
+</html>
