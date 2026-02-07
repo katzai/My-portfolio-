@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Portfolio Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-main: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-gray: #6B6B6B;
+            --border: #E5E7EB;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* ========== LOGIN SCREEN ========== */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-subtitle {
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .pin-display {
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 36px;
+            letter-spacing: 16px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keypad-btn {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        .keypad-btn:hover {
+            background: var(--bg-main);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .keypad-btn:active {
+            transform: translateY(0);
+        }
+
+        .keypad-btn.clear {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            grid-column: span 2;
+        }
+
+        .keypad-btn.clear:hover {
+            background: #dc2626;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            text-align: center;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        /* ========== ADMIN DASHBOARD ========== */
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid var(--border);
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .tabs {
+            background: white;
+            padding: 0 40px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 20px 28px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--bg-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .content {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* ========== IMAGE GALLERY ========== */
+        .gallery-controls {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .folder-section {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .folder-select {
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            min-width: 220px;
+            transition: all 0.2s;
+        }
+
+        .folder-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .upload-zone {
+            background: white;
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: #f5f3ff;
+            transform: translateY(-4px);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        /* ========== IMAGE GRID - SMALL THUMBNAILS ========== */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .image-thumb {
+            position: relative;
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .image-thumb:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .image-thumb.selected {
+            border-color: var(--primary);
+            border-width: 4px;
+        }
+
+        .image-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 2;
+        }
+
+        .image-thumb:hover .image-checkbox,
+        .image-thumb.selected .image-checkbox {
+            opacity: 1;
+        }
+
+        .image-thumb.selected .image-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .image-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            display: none;
+        }
+
+        .image-thumb.selected .image-checkbox::after {
+            display: block;
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 16px 10px 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-thumb:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-name {
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 2;
+        }
+
+        .image-thumb:hover .image-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .crop-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .crop-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* ========== MODAL ========== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: var(--text-gray);
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            margin-bottom: 30px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* ========== FORM ========== */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            font-size: 15px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* ========== CROPPER ========== */
+        .cropper-wrapper {
+            max-height: 500px;
+            margin-bottom: 24px;
+        }
+
+        .cropper-wrapper img {
+            max-width: 100%;
+        }
+
+        /* ========== PROJECT IMAGES SELECTION ========== */
+        .selected-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .selected-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+        }
+
+        .selected-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        /* ========== PROJECTS GRID ========== */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 28px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .project-slider {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .project-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .project-slide.active {
+            opacity: 1;
+        }
+
+        .project-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-body {
+            padding: 24px;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .project-desc {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ========== EMPTY STATE ========== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-gray);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .admin-header,
+            .tabs,
+            .content {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 12px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .folder-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .folder-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">🔐 Admin Panel</h1>
+            <p class="login-subtitle">Enter your 4-digit PIN</p>
+            <div class="pin-display" id="pinDisplay">••••</div>
+            <div class="keypad">
+                <button class="keypad-btn" onclick="addDigit('1')">1</button>
+                <button class="keypad-btn" onclick="addDigit('2')">2</button>
+                <button class="keypad-btn" onclick="addDigit('3')">3</button>
+                <button class="keypad-btn" onclick="addDigit('4')">4</button>
+                <button class="keypad-btn" onclick="addDigit('5')">5</button>
+                <button class="keypad-btn" onclick="addDigit('6')">6</button>
+                <button class="keypad-btn" onclick="addDigit('7')">7</button>
+                <button class="keypad-btn" onclick="addDigit('8')">8</button>
+                <button class="keypad-btn" onclick="addDigit('9')">9</button>
+                <button class="keypad-btn clear" onclick="clearPin()">Clear</button>
+                <button class="keypad-btn" onclick="addDigit('0')">0</button>
+            </div>
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div class="admin-container" id="adminDashboard">
+        <div class="admin-header">
+            <h1 class="admin-title">📊 Portfolio Admin</h1>
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="switchTab('images')">🖼️ Images</button>
+            <button class="tab-btn" onclick="switchTab('projects')">💼 Projects</button>
+            <button class="tab-btn" onclick="switchTab('contacts')">📧 Contacts</button>
+        </nav>
+
+        <div class="content">
+            <!-- IMAGES SECTION -->
+            <section id="imagesSection" class="section active">
+                <div class="section-header">
+                    <h2 class="section-title">Image Gallery</h2>
+                </div>
+
+                <div class="gallery-controls">
+                    <div class="folder-section">
+                        <label class="form-label" style="margin: 0;">📁 Folder:</label>
+                        <select id="folderSelect" class="folder-select" onchange="loadImages()">
+                            <option value="all">All Images</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="openFolderModal()">➕ New Folder</button>
+                    <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📤 Upload Images</button>
+                </div>
+
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag & drop images here</div>
+                    <div class="upload-subtext">or click to browse • Unlimited uploads • PNG, JPG, GIF, WebP</div>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(event.target.files)">
+                </div>
+
+                <div class="images-grid" id="imagesGrid"></div>
+            </section>
+
+            <!-- PROJECTS SECTION -->
+            <section id="projectsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Projects</h2>
+                    <button class="btn btn-primary" onclick="openProjectModal()">➕ New Project</button>
+                </div>
+
+                <div class="projects-grid" id="projectsGrid"></div>
+            </section>
+
+            <!-- CONTACTS SECTION -->
+            <section id="contactsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Contact Submissions</h2>
+                </div>
+
+                <div id="contactsList"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- CREATE FOLDER MODAL -->
+    <div class="modal" id="folderModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Folder</h3>
+                <button class="modal-close" onclick="closeFolderModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Folder Name</label>
+                    <input type="text" class="form-input" id="folderNameInput" placeholder="e.g., Portfolio, UI Design, Web Projects">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeFolderModal()" style="background: var(--bg-main); color: var(--text-dark);">Cancel</button>
+                <button class="btn btn-primary" onclick="createFolder()">Create Folder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CROP IMAGE MODAL -->
+    <div class="modal" id="cropModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Crop Image</h3>
+                <button class="modal-close" onclick="closeCropModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="cropper-wrapper">
+                    <img id="cropImage" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeCropModal()" style="background: var(--bg-main); color: var(--text-dark);">Cancel</button>
+                <button class="btn btn-success" onclick="saveCrop()">✂️ Save Cropped Image</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROJECT MODAL -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="projectModalTitle">New Project</h3>
+                <button class="modal-close" onclick="closeProjectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Project Title</label>
+                    <input type="text" class="form-input" id="projectTitle" placeholder="My Awesome Project">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="projectDesc" placeholder="Describe your project..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Technologies (comma-separated)</label>
+                    <input type="text" class="form-input" id="projectTech" placeholder="React, Node.js, MongoDB">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Project URL (optional)</label>
+                    <input type="text" class="form-input" id="projectUrl" placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Images (Click to select unlimited)</label>
+                    <div class="images-grid" id="projectImageSelect"></div>
+                    
+                    <div class="selected-preview" id="selectedPreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeProjectModal()" style="background: var(--bg-main); color: var(--text-dark);">Cancel</button>
+                <button class="btn btn-success" onclick="saveProject()">💾 Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script>
+        // CONFIG
+        const ADMIN_PIN = '1234'; // Change this!
+        
+        // STATE
+        let currentPin = '';
+        let currentFolder = 'all';
+        let images = [];
+        let folders = ['Uncategorized', 'Portfolio', 'UI-UX', 'Web-Design', 'Photography'];
+        let projects = [];
+        let cropper = null;
+        let currentCropId = null;
+        let selectedImages = [];
+        let currentEditProject = null;
+
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            setupUploadZone();
+            loadData();
+        });
+
+        // ===== LOGIN =====
+        function addDigit(digit) {
+            if (currentPin.length < 4) {
+                currentPin += digit;
+                updatePinDisplay();
+                if (currentPin.length === 4) checkPin();
+            }
+        }
+
+        function clearPin() {
+            currentPin = '';
+            updatePinDisplay();
+            document.getElementById('errorMsg').textContent = '';
+        }
+
+        function updatePinDisplay() {
+            const display = document.getElementById('pinDisplay');
+            display.textContent = '•'.repeat(currentPin.length) + '·'.repeat(4 - currentPin.length);
+        }
+
+        function checkPin() {
+            if (currentPin === ADMIN_PIN) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                loadData();
+            } else {
+                document.getElementById('errorMsg').textContent = '❌ Incorrect PIN';
+                setTimeout(clearPin, 1000);
+            }
+        }
+
+        function logout() {
+            currentPin = '';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminDashboard').style.display = 'none';
+            clearPin();
+        }
+
+        // ===== NAVIGATION =====
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Section').classList.add('active');
+            
+            if (tab === 'images') loadImages();
+            if (tab === 'projects') loadProjects();
+        }
+
+        // ===== FOLDER MANAGEMENT =====
+        function openFolderModal() {
+            document.getElementById('folderModal').classList.add('active');
+            document.getElementById('folderNameInput').value = '';
+        }
+
+        function closeFolderModal() {
+            document.getElementById('folderModal').classList.remove('active');
+        }
+
+        function createFolder() {
+            const name = document.getElementById('folderNameInput').value.trim();
+            
+            if (!name) {
+                alert('❌ Please enter a folder name');
+                return;
+            }
+            
+            if (folders.includes(name)) {
+                alert('❌ Folder already exists');
+                return;
+            }
+            
+            folders.push(name);
+            updateFolderSelect();
+            saveData();
+            closeFolderModal();
+            alert('✅ Folder created: ' + name);
+        }
+
+        function updateFolderSelect() {
+            const select = document.getElementById('folderSelect');
+            select.innerHTML = '<option value="all">All Images</option>';
+            
+            folders.forEach(folder => {
+                const option = document.createElement('option');
+                option.value = folder;
+                option.textContent = folder;
+                select.appendChild(option);
+            });
+        }
+
+        // ===== UPLOAD =====
+        function setupUploadZone() {
+            const zone = document.getElementById('uploadZone');
+            
+            zone.addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
+            
+            zone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                zone.classList.add('dragover');
+            });
+            
+            zone.addEventListener('dragleave', () => {
+                zone.classList.remove('dragover');
+            });
+            
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('dragover');
+                
+                const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+                handleFiles(files);
+            });
+        }
+
+        function handleFiles(files) {
+            const folder = document.getElementById('folderSelect').value === 'all' 
+                ? 'Uncategorized' 
+                : document.getElementById('folderSelect').value;
+            
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const image = {
+                        id: 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                        name: file.name,
+                        data: e.target.result,
+                        folder: folder,
+                        created: new Date().toISOString()
+                    };
+                    
+                    images.push(image);
+                    saveData();
+                    loadImages();
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ===== IMAGE DISPLAY =====
+        function loadImages() {
+            const grid = document.getElementById('imagesGrid');
+            const folder = document.getElementById('folderSelect').value;
+            
+            const filtered = folder === 'all' 
+                ? images 
+                : images.filter(img => img.folder === folder);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">📷</div>
+                        <div class="empty-title">No images yet</div>
+                        <div class="empty-text">Upload some images to get started</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(img => `
+                <div class="image-thumb" data-id="${img.id}">
+                    <div class="image-checkbox"></div>
+                    <img src="${img.data}" alt="${img.name}">
+                    <div class="image-overlay">
+                        <div class="image-name">${img.name}</div>
+                    </div>
+                    <div class="image-actions">
+                        <button class="action-btn crop-btn" onclick="openCropModal('${img.id}')" title="Crop">✂️</button>
+                        <button class="action-btn delete-btn" onclick="deleteImage('${img.id}')" title="Delete">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteImage(id) {
+            event.stopPropagation();
+            
+            if (confirm('🗑️ Delete this image?')) {
+                images = images.filter(img => img.id !== id);
+                saveData();
+                loadImages();
+            }
+        }
+
+        // ===== CROP =====
+        function openCropModal(id) {
+            event.stopPropagation();
+            
+            const image = images.find(img => img.id === id);
+            if (!image) return;
+            
+            currentCropId = id;
+            
+            const cropImage = document.getElementById('cropImage');
+            cropImage.src = image.data;
+            
+            document.getElementById('cropModal').classList.add('active');
+            
+            setTimeout(() => {
+                if (cropper) cropper.destroy();
+                
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: NaN,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    responsive: true,
+                    background: false,
+                });
+            }, 100);
+        }
+
+        function closeCropModal() {
+            document.getElementById('cropModal').classList.remove('active');
+            
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            
+            currentCropId = null;
+        }
+
+        function saveCrop() {
+            if (!cropper || !currentCropId) return;
+            
+            const canvas = cropper.getCroppedCanvas();
+            const croppedData = canvas.toDataURL();
+            
+            const image = images.find(img => img.id === currentCropId);
+            if (image) {
+                image.data = croppedData;
+                saveData();
+                loadImages();
+            }
+            
+            closeCropModal();
+        }
+
+        // ===== PROJECTS =====
+        function openProjectModal(id = null) {
+            selectedImages = [];
+            currentEditProject = id;
+            
+            if (id) {
+                const project = projects.find(p => p.id === id);
+                if (project) {
+                    document.getElementById('projectModalTitle').textContent = 'Edit Project';
+                    document.getElementById('projectTitle').value = project.title;
+                    document.getElementById('projectDesc').value = project.desc;
+                    document.getElementById('projectTech').value = project.tech.join(', ');
+                    document.getElementById('projectUrl').value = project.url || '';
+                    selectedImages = [...project.images];
+                }
+            } else {
+                document.getElementById('projectModalTitle').textContent = 'New Project';
+                document.getElementById('projectTitle').value = '';
+                document.getElementById('projectDesc').value = '';
+                document.getElementById('projectTech').value = '';
+                document.getElementById('projectUrl').value = '';
+            }
+            
+            updateProjectImageSelect();
+            updateSelectedPreview();
+            document.getElementById('projectModal').classList.add('active');
+        }
+
+        function closeProjectModal() {
+            document.getElementById('projectModal').classList.remove('active');
+            selectedImages = [];
+            currentEditProject = null;
+        }
+
+        function updateProjectImageSelect() {
+            const grid = document.getElementById('projectImageSelect');
+            
+            if (images.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">📷</div>
+                        <div class="empty-title">No images available</div>
+                        <div class="empty-text">Upload images first</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = images.map(img => `
+                <div class="image-thumb ${selectedImages.includes(img.id) ? 'selected' : ''}" 
+                     onclick="toggleImageSelect('${img.id}')">
+                    <div class="image-checkbox"></div>
+                    <img src="${img.data}" alt="${img.name}">
+                </div>
+            `).join('');
+        }
+
+        function toggleImageSelect(id) {
+            const index = selectedImages.indexOf(id);
+            
+            if (index > -1) {
+                selectedImages.splice(index, 1);
+            } else {
+                selectedImages.push(id);
+            }
+            
+            updateProjectImageSelect();
+            updateSelectedPreview();
+        }
+
+        function updateSelectedPreview() {
+            const preview = document.getElementById('selectedPreview');
+            
+            if (selectedImages.length === 0) {
+                preview.innerHTML = '';
+                return;
+            }
+            
+            preview.innerHTML = selectedImages.map(id => {
+                const img = images.find(i => i.id === id);
+                if (!img) return '';
+                
+                return `
+                    <div class="selected-item">
+                        <img src="${img.data}" alt="${img.name}">
+                        <button class="remove-btn" onclick="removeSelectedImage('${id}')">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeSelectedImage(id) {
+            event.stopPropagation();
+            selectedImages = selectedImages.filter(i => i !== id);
+            updateProjectImageSelect();
+            updateSelectedPreview();
+        }
+
+        function saveProject() {
+            const title = document.getElementById('projectTitle').value.trim();
+            const desc = document.getElementById('projectDesc').value.trim();
+            const tech = document.getElementById('projectTech').value
+                .split(',')
+                .map(t => t.trim())
+                .filter(t => t);
+            const url = document.getElementById('projectUrl').value.trim();
+            
+            if (!title || !desc || selectedImages.length === 0) {
+                alert('❌ Please fill all fields and select at least one image');
+                return;
+            }
+            
+            if (currentEditProject) {
+                const project = projects.find(p => p.id === currentEditProject);
+                if (project) {
+                    project.title = title;
+                    project.desc = desc;
+                    project.tech = tech;
+                    project.url = url;
+                    project.images = selectedImages;
+                }
+            } else {
+                const project = {
+                    id: 'proj_' + Date.now(),
+                    title,
+                    desc,
+                    tech,
+                    url,
+                    images: selectedImages,
+                    created: new Date().toISOString()
+                };
+                
+                projects.push(project);
+            }
+            
+            saveData();
+            loadProjects();
+            closeProjectModal();
+        }
+
+        function loadProjects() {
+            const grid = document.getElementById('projectsGrid');
+            
+            if (projects.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">💼</div>
+                        <div class="empty-title">No projects yet</div>
+                        <div class="empty-text">Create your first project</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = projects.map(project => {
+                const projectImages = project.images
+                    .map(id => images.find(img => img.id === id))
+                    .filter(img => img);
+                
+                return `
+                    <div class="project-card">
+                        <div class="project-slider" id="slider-${project.id}">
+                            ${projectImages.map((img, i) => `
+                                <div class="project-slide ${i === 0 ? 'active' : ''}">
+                                    <img src="${img.data}" alt="${img.name}">
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="project-body">
+                            <h3 class="project-title">${project.title}</h3>
+                            <p class="project-desc">${project.desc}</p>
+                            <div class="project-actions">
+                                <button class="btn btn-primary" onclick="openProjectModal('${project.id}')">✏️ Edit</button>
+                                <button class="btn btn-danger" onclick="deleteProject('${project.id}')">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Start auto-sliding
+            projects.forEach(project => {
+                startSlider(project.id, project.images.length);
+            });
+        }
+
+        function startSlider(id, count) {
+            if (count <= 1) return;
+            
+            let current = 0;
+            const slider = document.getElementById(`slider-${id}`);
+            if (!slider) return;
+            
+            setInterval(() => {
+                const slides = slider.querySelectorAll('.project-slide');
+                slides[current].classList.remove('active');
+                current = (current + 1) % count;
+                slides[current].classList.add('active');
+            }, 3000);
+        }
+
+        function deleteProject(id) {
+            if (confirm('🗑️ Delete this project?')) {
+                projects = projects.filter(p => p.id !== id);
+                saveData();
+                loadProjects();
+            }
+        }
+
+        // ===== DATA =====
+        function loadData() {
+            const saved = localStorage.getItem('portfolioData');
+            
+            if (saved) {
+                const data = JSON.parse(saved);
+                images = data.images || [];
+                folders = data.folders || ['Uncategorized', 'Portfolio', 'UI-UX', 'Web-Design', 'Photography'];
+                projects = data.projects || [];
+            }
+            
+            updateFolderSelect();
+            loadImages();
+        }
+
+        function saveData() {
+            const data = {
+                images,
+                folders,
+                projects,
+                updated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('portfolioData', JSON.stringify(data));
+        }
+    </script>
+</body>
+  </html>
