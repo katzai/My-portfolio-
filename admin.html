@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Portfolio Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-main: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-gray: #6B6B6B;
+            --border: #E5E7EB;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-subtitle {
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .pin-display {
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 36px;
+            letter-spacing: 16px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keypad-btn {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        .keypad-btn:hover {
+            background: var(--bg-main);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .keypad-btn:active {
+            transform: translateY(0);
+        }
+
+        .keypad-btn.clear {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            grid-column: span 2;
+        }
+
+        .keypad-btn.clear:hover {
+            background: #dc2626;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            text-align: center;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid var(--border);
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sync-status {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-status.synced {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .sync-status.syncing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .sync-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .tabs {
+            background: white;
+            padding: 0 40px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 20px 28px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: var(--bg-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .content {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        .folder-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .folder-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .folder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .folder-item:hover {
+            background: var(--bg-main);
+        }
+
+        .folder-item.active {
+            background: #EEF2FF;
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .folder-icon {
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
+        }
+
+        .folder-name {
+            flex: 1;
+            font-size: 15px;
+        }
+
+        .folder-count {
+            background: var(--bg-main);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+
+        .folder-item.active .folder-count {
+            background: var(--primary);
+            color: white;
+        }
+
+        .folder-delete {
+            opacity: 0;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .folder-item:hover .folder-delete {
+            opacity: 1;
+        }
+
+        .folder-delete:hover {
+            background: #dc2626;
+        }
+
+        .upload-zone {
+            background: white;
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: #f5f3ff;
+            transform: translateY(-4px);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .image-thumb {
+            position: relative;
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .image-thumb:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .image-thumb.selected {
+            border-color: var(--primary);
+            border-width: 4px;
+        }
+
+        .image-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 28px;
+            height: 28px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 2;
+        }
+
+        .image-thumb:hover .image-checkbox,
+        .image-thumb.selected .image-checkbox {
+            opacity: 1;
+        }
+
+        .image-thumb.selected .image-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .image-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            display: none;
+        }
+
+        .image-thumb.selected .image-checkbox::after {
+            display: block;
+        }
+
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding: 16px 10px 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-thumb:hover .image-overlay {
+            opacity: 1;
+        }
+
+        .image-name {
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .image-actions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 2;
+        }
+
+        .image-thumb:hover .image-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .crop-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .crop-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: var(--text-gray);
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            margin-bottom: 30px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            font-size: 15px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .cropper-wrapper {
+            max-height: 500px;
+            margin-bottom: 24px;
+        }
+
+        .cropper-wrapper img {
+            max-width: 100%;
+        }
+
+        .selected-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .selected-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 3px solid var(--primary);
+        }
+
+        .selected-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 28px;
+            height: 28px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 28px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .project-slider {
+            position: relative;
+            height: 280px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .project-slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .project-slide.active {
+            opacity: 1;
+        }
+
+        .project-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-body {
+            padding: 24px;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .project-desc {
+            color: var(--text-gray);
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .contact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .contact-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .contact-email {
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .contact-message {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .contact-date {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-gray);
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        .config-notice {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .config-notice-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .config-notice-text {
+            font-size: 14px;
+            color: #92400e;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header,
+            .tabs,
+            .content {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 12px;
+            }
+
+            .projects-grid,
+            .contacts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">🔐 Admin Panel</h1>
+            <p class="login-subtitle">Enter your 4-digit PIN</p>
+            <div class="pin-display" id="pinDisplay">••••</div>
+            <div class="keypad">
+                <button class="keypad-btn" onclick="addDigit('1')">1</button>
+                <button class="keypad-btn" onclick="addDigit('2')">2</button>
+                <button class="keypad-btn" onclick="addDigit('3')">3</button>
+                <button class="keypad-btn" onclick="addDigit('4')">4</button>
+                <button class="keypad-btn" onclick="addDigit('5')">5</button>
+                <button class="keypad-btn" onclick="addDigit('6')">6</button>
+                <button class="keypad-btn" onclick="addDigit('7')">7</button>
+                <button class="keypad-btn" onclick="addDigit('8')">8</button>
+                <button class="keypad-btn" onclick="addDigit('9')">9</button>
+                <button class="keypad-btn clear" onclick="clearPin()">Clear</button>
+                <button class="keypad-btn" onclick="addDigit('0')">0</button>
+            </div>
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <div class="admin-container" id="adminDashboard">
+        <div class="admin-header">
+            <h1 class="admin-title">📊 Portfolio Admin</h1>
+            <div class="header-actions">
+                <div class="sync-status synced" id="syncStatus">
+                    <span>✓</span>
+                    <span id="syncText">Ready</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="switchTab('images')">🖼️ Images</button>
+            <button class="tab-btn" onclick="switchTab('projects')">💼 Projects</button>
+            <button class="tab-btn" onclick="switchTab('contacts')">📧 Contacts</button>
+            <button class="tab-btn" onclick="switchTab('config')">⚙️ Config</button>
+        </nav>
+
+        <div class="content">
+            <section id="imagesSection" class="section active">
+                <div class="section-header">
+                    <h2 class="section-title">Image Gallery</h2>
+                    <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📤 Upload Images</button>
+                </div>
+
+                <div class="folder-panel">
+                    <div class="folder-header">
+                        <div class="folder-title">
+                            <span>📁</span>
+                            <span>Folders</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openFolderModal()">➕ New Folder</button>
+                    </div>
+                    <div class="folder-list" id="folderList"></div>
+                </div>
+
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag & drop images here</div>
+                    <div class="upload-subtext">or click to browse • Unlimited uploads • PNG, JPG, GIF, WebP</div>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                </div>
+
+                <div class="images-grid" id="imagesGrid"></div>
+            </section>
+
+            <section id="projectsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Projects</h2>
+                    <button class="btn btn-primary" onclick="openProjectModal()">➕ New Project</button>
+                </div>
+
+                <div class="projects-grid" id="projectsGrid"></div>
+            </section>
+
+            <section id="contactsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Contact Submissions</h2>
+                    <button class="btn btn-primary" onclick="openContactModal()">➕ Add Contact</button>
+                </div>
+
+                <div class="contacts-grid" id="contactsList"></div>
+            </section>
+
+            <section id="configSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">GitHub Configuration</h2>
+                    <button class="btn btn-success" onclick="saveConfig()">💾 Save Config</button>
+                </div>
+
+                <div class="folder-panel">
+                    <div class="config-notice">
+                        <div class="config-notice-title">⚠️ Important: GitHub Setup Required</div>
+                        <div class="config-notice-text">
+                            This admin panel pushes all changes directly to GitHub. Configure your GitHub credentials below to enable auto-sync.
+                            <br><br>
+                            <strong>How to get a GitHub Token:</strong><br>
+                            1. Go to GitHub Settings → Developer settings → Personal access tokens<br>
+                            2. Generate new token (classic)<br>
+                            3. Select 'repo' scope<br>
+                            4. Copy the token and paste below
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GitHub Personal Access Token</label>
+                        <input type="password" class="form-input" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GitHub Repository (format: username/repo)</label>
+                        <input type="text" class="form-input" id="githubRepo" placeholder="john/portfolio">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin PIN (4 digits)</label>
+                        <input type="password" class="form-input" id="adminPin" placeholder="1234" maxlength="4">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal" id="folderModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Folder</h3>
+                <button class="modal-close" onclick="closeFolderModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Folder Name</label>
+                    <input type="text" class="form-input" id="folderNameInput" placeholder="e.g., Portfolio, UI Design, Web Projects">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFolderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createFolder()">Create Folder</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="cropModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Crop Image</h3>
+                <button class="modal-close" onclick="closeCropModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="cropper-wrapper">
+                    <img id="cropImage" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCropModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveCrop()">✂️ Save Cropped Image</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="projectModalTitle">New Project</h3>
+                <button class="modal-close" onclick="closeProjectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Project Title</label>
+                    <input type="text" class="form-input" id="projectTitle" placeholder="My Awesome Project">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="projectDesc" placeholder="Describe your project..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Technologies (comma-separated)</label>
+                    <input type="text" class="form-input" id="projectTech" placeholder="React, Node.js, MongoDB">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Project URL (optional)</label>
+                    <input type="text" class="form-input" id="projectUrl" placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Images (Click to select unlimited)</label>
+                    <div class="images-grid" id="projectImageSelect"></div>
+                    
+                    <div class="selected-preview" id="selectedPreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveProject()">💾 Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="contactModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Contact Submission</h3>
+                <button class="modal-close" onclick="closeContactModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="contactName" placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="contactEmail" placeholder="john@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-textarea" id="contactMessage" placeholder="Enter message..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveContact()">💾 Save Contact</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="admin-config.js"></script>
+    <script src="admin-logic.js"></script>
+</body>
+</html>
