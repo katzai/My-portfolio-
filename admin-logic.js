@@ -8,11 +8,157 @@ let cropper = null;
 let currentCropId = null;
 let selectedImages = [];
 let currentEditProject = null;
+let selectedPlatform = { icon: 'fas fa-envelope', name: 'Email', color: '#6366F1', urlPattern: 'mailto:' };
+
+// Comprehensive social media and contact platforms
+const socialPlatforms = [
+    // Email & Communication
+    { name: 'Email', icon: 'fas fa-envelope', color: '#6366F1', urlPattern: 'mailto:' },
+    { name: 'Phone', icon: 'fas fa-phone', color: '#10B981', urlPattern: 'tel:' },
+    { name: 'WhatsApp', icon: 'fab fa-whatsapp', color: '#25D366', urlPattern: 'https://wa.me/' },
+    { name: 'Telegram', icon: 'fab fa-telegram', color: '#0088cc', urlPattern: 'https://t.me/' },
+    { name: 'Messenger', icon: 'fab fa-facebook-messenger', color: '#0084FF', urlPattern: 'https://m.me/' },
+    { name: 'WeChat', icon: 'fab fa-weixin', color: '#09B83E', urlPattern: '' },
+    { name: 'Signal', icon: 'fas fa-comment-dots', color: '#3A76F0', urlPattern: '' },
+    { name: 'Viber', icon: 'fab fa-viber', color: '#665CAC', urlPattern: '' },
+    { name: 'Line', icon: 'fab fa-line', color: '#00B900', urlPattern: '' },
+    { name: 'Skype', icon: 'fab fa-skype', color: '#00AFF0', urlPattern: 'skype:' },
+    { name: 'Discord', icon: 'fab fa-discord', color: '#5865F2', urlPattern: 'https://discord.gg/' },
+    { name: 'Slack', icon: 'fab fa-slack', color: '#4A154B', urlPattern: '' },
+    
+    // Social Networks
+    { name: 'Facebook', icon: 'fab fa-facebook', color: '#1877F2', urlPattern: 'https://facebook.com/' },
+    { name: 'Instagram', icon: 'fab fa-instagram', color: '#E4405F', urlPattern: 'https://instagram.com/' },
+    { name: 'Twitter/X', icon: 'fab fa-twitter', color: '#1DA1F2', urlPattern: 'https://twitter.com/' },
+    { name: 'LinkedIn', icon: 'fab fa-linkedin', color: '#0A66C2', urlPattern: 'https://linkedin.com/in/' },
+    { name: 'TikTok', icon: 'fab fa-tiktok', color: '#000000', urlPattern: 'https://tiktok.com/@' },
+    { name: 'Snapchat', icon: 'fab fa-snapchat', color: '#FFFC00', urlPattern: 'https://snapchat.com/add/' },
+    { name: 'Pinterest', icon: 'fab fa-pinterest', color: '#E60023', urlPattern: 'https://pinterest.com/' },
+    { name: 'Reddit', icon: 'fab fa-reddit', color: '#FF4500', urlPattern: 'https://reddit.com/u/' },
+    { name: 'Tumblr', icon: 'fab fa-tumblr', color: '#35465C', urlPattern: 'https://tumblr.com/' },
+    { name: 'VK', icon: 'fab fa-vk', color: '#0077FF', urlPattern: 'https://vk.com/' },
+    { name: 'Mastodon', icon: 'fab fa-mastodon', color: '#6364FF', urlPattern: '' },
+    { name: 'BlueSky', icon: 'fas fa-cloud', color: '#0085FF', urlPattern: '' },
+    { name: 'Threads', icon: 'fab fa-threads', color: '#000000', urlPattern: '' },
+    
+    // Professional
+    { name: 'GitHub', icon: 'fab fa-github', color: '#181717', urlPattern: 'https://github.com/' },
+    { name: 'GitLab', icon: 'fab fa-gitlab', color: '#FC6D26', urlPattern: 'https://gitlab.com/' },
+    { name: 'Behance', icon: 'fab fa-behance', color: '#1769FF', urlPattern: 'https://behance.net/' },
+    { name: 'Dribbble', icon: 'fab fa-dribbble', color: '#EA4C89', urlPattern: 'https://dribbble.com/' },
+    { name: 'Stack Overflow', icon: 'fab fa-stack-overflow', color: '#F58025', urlPattern: 'https://stackoverflow.com/users/' },
+    { name: 'Medium', icon: 'fab fa-medium', color: '#000000', urlPattern: 'https://medium.com/@' },
+    { name: 'Dev.to', icon: 'fab fa-dev', color: '#0A0A0A', urlPattern: 'https://dev.to/' },
+    { name: 'Hashnode', icon: 'fas fa-hashtag', color: '#2962FF', urlPattern: '' },
+    { name: 'CodePen', icon: 'fab fa-codepen', color: '#000000', urlPattern: 'https://codepen.io/' },
+    
+    // Content & Media
+    { name: 'YouTube', icon: 'fab fa-youtube', color: '#FF0000', urlPattern: 'https://youtube.com/@' },
+    { name: 'Twitch', icon: 'fab fa-twitch', color: '#9146FF', urlPattern: 'https://twitch.tv/' },
+    { name: 'Vimeo', icon: 'fab fa-vimeo', color: '#1AB7EA', urlPattern: 'https://vimeo.com/' },
+    { name: 'Spotify', icon: 'fab fa-spotify', color: '#1DB954', urlPattern: 'https://open.spotify.com/user/' },
+    { name: 'SoundCloud', icon: 'fab fa-soundcloud', color: '#FF3300', urlPattern: 'https://soundcloud.com/' },
+    { name: 'Apple Music', icon: 'fab fa-apple', color: '#FA243C', urlPattern: '' },
+    { name: 'Patreon', icon: 'fab fa-patreon', color: '#FF424D', urlPattern: 'https://patreon.com/' },
+    { name: 'Ko-fi', icon: 'fas fa-mug-hot', color: '#FF5E5B', urlPattern: 'https://ko-fi.com/' },
+    { name: 'Buy Me Coffee', icon: 'fas fa-coffee', color: '#FFDD00', urlPattern: '' },
+    
+    // Business & Shopping
+    { name: 'Website', icon: 'fas fa-globe', color: '#6366F1', urlPattern: 'https://' },
+    { name: 'Portfolio', icon: 'fas fa-briefcase', color: '#6366F1', urlPattern: '' },
+    { name: 'Blog', icon: 'fas fa-blog', color: '#6366F1', urlPattern: '' },
+    { name: 'Etsy', icon: 'fab fa-etsy', color: '#F1641E', urlPattern: 'https://etsy.com/shop/' },
+    { name: 'Amazon', icon: 'fab fa-amazon', color: '#FF9900', urlPattern: '' },
+    { name: 'eBay', icon: 'fab fa-ebay', color: '#E53238', urlPattern: '' },
+    { name: 'Shopify', icon: 'fab fa-shopify', color: '#96BF48', urlPattern: '' },
+    
+    // Other
+    { name: 'Linktree', icon: 'fas fa-link', color: '#43E55E', urlPattern: 'https://linktr.ee/' },
+    { name: 'Calendar', icon: 'fas fa-calendar', color: '#6366F1', urlPattern: '' },
+    { name: 'Location', icon: 'fas fa-map-marker-alt', color: '#EF4444', urlPattern: '' },
+    { name: 'Document', icon: 'fas fa-file', color: '#6366F1', urlPattern: '' },
+    { name: 'Download', icon: 'fas fa-download', color: '#10B981', urlPattern: '' },
+    { name: 'Custom Link', icon: 'fas fa-external-link-alt', color: '#6366F1', urlPattern: '' }
+];
 
 document.addEventListener('DOMContentLoaded', () => {
     setupUploadZone();
     loadConfigUI();
+    initializeIconSelector();
 });
+
+function initializeIconSelector() {
+    const iconGrid = document.getElementById('iconGrid');
+    
+    iconGrid.innerHTML = socialPlatforms.map(platform => `
+        <div class="icon-option" onclick="selectPlatform('${platform.name}')" data-platform="${platform.name.toLowerCase()}">
+            <i class="${platform.icon}" style="color: ${platform.color};"></i>
+            <span class="icon-option-name">${platform.name}</span>
+        </div>
+    `).join('');
+}
+
+function toggleIconDropdown() {
+    const dropdown = document.getElementById('iconDropdown');
+    dropdown.classList.toggle('active');
+    
+    // Close when clicking outside
+    if (dropdown.classList.contains('active')) {
+        setTimeout(() => {
+            document.addEventListener('click', closeIconDropdownOutside);
+        }, 100);
+    }
+}
+
+function closeIconDropdownOutside(e) {
+    const dropdown = document.getElementById('iconDropdown');
+    const preview = document.getElementById('iconPreview');
+    
+    if (!dropdown.contains(e.target) && !preview.contains(e.target)) {
+        dropdown.classList.remove('active');
+        document.removeEventListener('click', closeIconDropdownOutside);
+    }
+}
+
+function selectPlatform(platformName) {
+    const platform = socialPlatforms.find(p => p.name === platformName);
+    if (!platform) return;
+    
+    selectedPlatform = platform;
+    
+    // Update preview
+    document.getElementById('selectedIcon').className = platform.icon;
+    document.getElementById('selectedIcon').style.color = platform.color;
+    document.getElementById('selectedPlatform').textContent = platform.name;
+    
+    // Update label if empty
+    const nameInput = document.getElementById('contactName');
+    if (!nameInput.value) {
+        nameInput.value = platform.name;
+    }
+    
+    // Highlight selected
+    document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
+    event.target.closest('.icon-option').classList.add('selected');
+    
+    // Close dropdown
+    document.getElementById('iconDropdown').classList.remove('active');
+    document.removeEventListener('click', closeIconDropdownOutside);
+}
+
+function filterIcons() {
+    const searchTerm = document.getElementById('iconSearchInput').value.toLowerCase();
+    const options = document.querySelectorAll('.icon-option');
+    
+    options.forEach(option => {
+        const platformName = option.getAttribute('data-platform');
+        if (platformName.includes(searchTerm)) {
+            option.style.display = 'flex';
+        } else {
+            option.style.display = 'none';
+        }
+    });
+}
 
 function addDigit(digit) {
     if (currentPin.length < 4) {
@@ -258,38 +404,31 @@ function setupUploadZone() {
     });
     
     fileInput.addEventListener('change', (e) => {
-        if (e.target.files.length > 0) {
-            handleFiles(Array.from(e.target.files));
-            e.target.value = '';
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            handleFiles(files);
         }
+        e.target.value = '';
     });
 }
 
 function handleFiles(files) {
-    const folder = currentFolder === 'all' ? 'Uncategorized' : currentFolder;
-    
-    Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) {
-            return;
-        }
-        
+    files.forEach(file => {
         const reader = new FileReader();
-        
         reader.onload = (e) => {
+            const id = 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             const image = {
-                id: 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-                name: file.name,
+                id: id,
                 url: e.target.result,
-                folder: folder,
-                created: new Date().toISOString()
+                name: file.name,
+                folder: currentFolder === 'all' ? 'Uncategorized' : currentFolder,
+                uploadDate: new Date().toISOString()
             };
             
             images.push(image);
             loadImages();
-            updateFolderList();
             syncToGitHub();
         };
-        
         reader.readAsDataURL(file);
     });
 }
@@ -304,8 +443,8 @@ function loadImages() {
     if (filtered.length === 0) {
         grid.innerHTML = `
             <div class="empty-state" style="grid-column: 1/-1;">
-                <div class="empty-icon">📷</div>
-                <div class="empty-title">No images in this folder</div>
+                <div class="empty-icon">🖼️</div>
+                <div class="empty-title">No images here</div>
                 <div class="empty-text">Upload some images to get started</div>
             </div>
         `;
@@ -313,41 +452,29 @@ function loadImages() {
     }
     
     grid.innerHTML = filtered.map(img => `
-        <div class="image-thumb" data-id="${img.id}">
-            <div class="image-checkbox"></div>
-            <img src="${img.url}" alt="${img.name}">
-            <div class="image-overlay">
+        <div class="image-card">
+            <img src="${img.url}" alt="${img.name}" class="image-preview">
+            <div class="image-info">
                 <div class="image-name">${img.name}</div>
+                <div class="image-folder">📁 ${img.folder}</div>
             </div>
             <div class="image-actions">
-                <button class="action-btn crop-btn" onclick="openCropModal('${img.id}')" title="Crop">✂️</button>
-                <button class="action-btn delete-btn" onclick="deleteImage('${img.id}')" title="Delete">🗑️</button>
+                <button style="background: var(--primary); color: white;" onclick="openCropModal('${img.id}')">✂️ Crop</button>
+                <button style="background: var(--warning); color: white;" onclick="moveImage('${img.id}')">📁 Move</button>
+                <button style="background: var(--danger); color: white;" onclick="deleteImage('${img.id}')">🗑️</button>
             </div>
         </div>
     `).join('');
 }
 
-function deleteImage(id) {
-    event.stopPropagation();
+function openCropModal(imageId) {
+    const img = images.find(i => i.id === imageId);
+    if (!img) return;
     
-    if (confirm('🗑️ Delete this image?')) {
-        images = images.filter(img => img.id !== id);
-        loadImages();
-        updateFolderList();
-        syncToGitHub();
-    }
-}
-
-function openCropModal(id) {
-    event.stopPropagation();
-    
-    const image = images.find(img => img.id === id);
-    if (!image) return;
-    
-    currentCropId = id;
+    currentCropId = imageId;
     
     const cropImage = document.getElementById('cropImage');
-    cropImage.src = image.url;
+    cropImage.src = img.url;
     
     document.getElementById('cropModal').classList.add('active');
     
@@ -360,23 +487,17 @@ function openCropModal(id) {
             aspectRatio: NaN,
             viewMode: 1,
             autoCropArea: 1,
-            responsive: true,
-            background: false,
-            zoomable: true,
-            scalable: true,
-            rotatable: true
+            responsive: true
         });
     }, 100);
 }
 
 function closeCropModal() {
-    document.getElementById('cropModal').classList.remove('active');
-    
     if (cropper) {
         cropper.destroy();
         cropper = null;
     }
-    
+    document.getElementById('cropModal').classList.remove('active');
     currentCropId = null;
 }
 
@@ -384,11 +505,11 @@ function saveCrop() {
     if (!cropper || !currentCropId) return;
     
     const canvas = cropper.getCroppedCanvas();
-    const croppedData = canvas.toDataURL();
+    const croppedDataUrl = canvas.toDataURL();
     
-    const image = images.find(img => img.id === currentCropId);
-    if (image) {
-        image.url = croppedData;
+    const img = images.find(i => i.id === currentCropId);
+    if (img) {
+        img.url = croppedDataUrl;
         loadImages();
         syncToGitHub();
     }
@@ -396,141 +517,115 @@ function saveCrop() {
     closeCropModal();
 }
 
-function openProjectModal(id = null) {
-    selectedImages = [];
-    currentEditProject = id;
+function moveImage(imageId) {
+    const img = images.find(i => i.id === imageId);
+    if (!img) return;
     
-    if (id) {
-        const project = projects.find(p => p.id === id);
-        if (project) {
-            document.getElementById('projectModalTitle').textContent = 'Edit Project';
-            document.getElementById('projectTitle').value = project.title;
-            document.getElementById('projectDesc').value = project.description;
-            document.getElementById('projectTech').value = (project.technologies || []).join(', ');
-            document.getElementById('projectUrl').value = project.link || '';
-            selectedImages = Array.isArray(project.images) ? [...project.images] : [];
-        }
+    const newFolder = prompt(`Move to folder:\n\nAvailable folders:\n${folders.join(', ')}`, img.folder);
+    
+    if (newFolder && folders.includes(newFolder)) {
+        img.folder = newFolder;
+        loadImages();
+        updateFolderList();
+        syncToGitHub();
+    } else if (newFolder) {
+        alert('❌ Folder does not exist');
+    }
+}
+
+function deleteImage(imageId) {
+    if (confirm('🗑️ Delete this image?')) {
+        images = images.filter(img => img.id !== imageId);
+        loadImages();
+        updateFolderList();
+        syncToGitHub();
+    }
+}
+
+function openProjectModal(projectId = null) {
+    document.getElementById('projectModal').classList.add('active');
+    
+    if (projectId) {
+        currentEditProject = projects.find(p => p.id === projectId);
+        document.getElementById('projectModalTitle').textContent = 'Edit Project';
+        document.getElementById('projectTitle').value = currentEditProject.title;
+        document.getElementById('projectDesc').value = currentEditProject.description;
+        document.getElementById('projectTech').value = currentEditProject.technologies.join(', ');
+        document.getElementById('projectUrl').value = currentEditProject.url || '';
+        selectedImages = [...currentEditProject.images];
     } else {
+        currentEditProject = null;
         document.getElementById('projectModalTitle').textContent = 'New Project';
         document.getElementById('projectTitle').value = '';
         document.getElementById('projectDesc').value = '';
         document.getElementById('projectTech').value = '';
         document.getElementById('projectUrl').value = '';
+        selectedImages = [];
     }
     
-    updateProjectImageSelect();
-    updateSelectedPreview();
-    document.getElementById('projectModal').classList.add('active');
+    loadProjectImageSelector();
 }
 
 function closeProjectModal() {
     document.getElementById('projectModal').classList.remove('active');
-    selectedImages = [];
     currentEditProject = null;
+    selectedImages = [];
 }
 
-function updateProjectImageSelect() {
-    const grid = document.getElementById('projectImageSelect');
+function loadProjectImageSelector() {
+    const selector = document.getElementById('projectImageSelect');
+    const preview = document.getElementById('selectedPreview');
     
-    if (images.length === 0) {
-        grid.innerHTML = `
-            <div class="empty-state" style="grid-column: 1/-1;">
-                <div class="empty-icon">📷</div>
-                <div class="empty-title">No images available</div>
-                <div class="empty-text">Upload images first</div>
-            </div>
-        `;
-        return;
-    }
+    selector.innerHTML = images.map(img => `
+        <div class="image-card ${selectedImages.includes(img.url) ? 'selected' : ''}" onclick="toggleImageSelection('${img.url}')">
+            <img src="${img.url}" alt="${img.name}" class="image-preview">
+        </div>
+    `).join('');
     
-    grid.innerHTML = images.map(img => {
-        const isSelected = selectedImages.includes(img.url);
-        return `
-            <div class="image-thumb ${isSelected ? 'selected' : ''}" onclick="toggleImageSelect('${img.url.replace(/'/g, "\\'")}')">
-                <div class="image-checkbox"></div>
-                <img src="${img.url}" alt="${img.name}">
-            </div>
-        `;
-    }).join('');
+    preview.innerHTML = selectedImages.map(url => `
+        <img src="${url}" alt="Selected">
+    `).join('');
 }
 
-function toggleImageSelect(url) {
-    const index = selectedImages.indexOf(url);
-    
+function toggleImageSelection(imageUrl) {
+    const index = selectedImages.indexOf(imageUrl);
     if (index > -1) {
         selectedImages.splice(index, 1);
     } else {
-        selectedImages.push(url);
+        selectedImages.push(imageUrl);
     }
-    
-    updateProjectImageSelect();
-    updateSelectedPreview();
-}
-
-function updateSelectedPreview() {
-    const preview = document.getElementById('selectedPreview');
-    
-    if (selectedImages.length === 0) {
-        preview.innerHTML = '';
-        return;
-    }
-    
-    preview.innerHTML = selectedImages.map(url => {
-        const img = images.find(i => i.url === url);
-        const name = img ? img.name : 'Image';
-        
-        return `
-            <div class="selected-item">
-                <img src="${url}" alt="${name}">
-                <button class="remove-btn" onclick="removeSelectedImage('${url.replace(/'/g, "\\'")}')">×</button>
-            </div>
-        `;
-    }).join('');
-}
-
-function removeSelectedImage(url) {
-    event.stopPropagation();
-    selectedImages = selectedImages.filter(i => i !== url);
-    updateProjectImageSelect();
-    updateSelectedPreview();
+    loadProjectImageSelector();
 }
 
 function saveProject() {
     const title = document.getElementById('projectTitle').value.trim();
     const description = document.getElementById('projectDesc').value.trim();
-    const technologies = document.getElementById('projectTech').value
-        .split(',')
-        .map(t => t.trim())
-        .filter(t => t);
-    const link = document.getElementById('projectUrl').value.trim();
+    const techString = document.getElementById('projectTech').value.trim();
+    const url = document.getElementById('projectUrl').value.trim();
     
     if (!title || !description) {
         alert('❌ Please fill in title and description');
         return;
     }
     
+    const technologies = techString.split(',').map(t => t.trim()).filter(t => t);
+    
     if (currentEditProject) {
-        const project = projects.find(p => p.id === currentEditProject);
-        if (project) {
-            project.title = title;
-            project.description = description;
-            project.type = technologies.length > 0 ? technologies[0] : 'Project';
-            project.technologies = technologies;
-            project.link = link || '#';
-            project.images = selectedImages;
-        }
+        currentEditProject.title = title;
+        currentEditProject.description = description;
+        currentEditProject.technologies = technologies;
+        currentEditProject.url = url;
+        currentEditProject.images = [...selectedImages];
     } else {
         const project = {
             id: 'proj_' + Date.now(),
             title,
             description,
-            type: technologies.length > 0 ? technologies[0] : 'Project',
             technologies,
-            link: link || '#',
-            images: selectedImages,
-            created: new Date().toISOString()
+            url,
+            images: [...selectedImages],
+            createdDate: new Date().toISOString()
         };
-        
         projects.push(project);
     }
     
@@ -615,31 +710,56 @@ function deleteProject(id) {
 
 function openContactModal() {
     document.getElementById('contactModal').classList.add('active');
+    
+    // Reset to default
+    selectedPlatform = { icon: 'fas fa-envelope', name: 'Email', color: '#6366F1', urlPattern: 'mailto:' };
+    document.getElementById('selectedIcon').className = 'fas fa-envelope';
+    document.getElementById('selectedIcon').style.color = '#6366F1';
+    document.getElementById('selectedPlatform').textContent = 'Email';
+    
     document.getElementById('contactName').value = '';
-    document.getElementById('contactEmail').value = '';
+    document.getElementById('contactValue').value = '';
     document.getElementById('contactMessage').value = '';
+    
+    // Reset selected in dropdown
+    document.querySelectorAll('.icon-option').forEach(opt => opt.classList.remove('selected'));
 }
 
 function closeContactModal() {
     document.getElementById('contactModal').classList.remove('active');
+    document.getElementById('iconDropdown').classList.remove('active');
 }
 
 function saveContact() {
     const name = document.getElementById('contactName').value.trim();
-    const email = document.getElementById('contactEmail').value.trim();
+    const value = document.getElementById('contactValue').value.trim();
     const message = document.getElementById('contactMessage').value.trim();
     
-    if (!name || !email || !message) {
-        alert('❌ Please fill all fields');
+    if (!name || !value) {
+        alert('❌ Please fill in label and value fields');
         return;
+    }
+    
+    // Generate link based on platform
+    let link = value;
+    if (selectedPlatform.urlPattern) {
+        // If value is already a full URL, use it as is
+        if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('mailto:') || value.startsWith('tel:')) {
+            link = value;
+        } else {
+            // Otherwise, add the platform's URL pattern
+            link = selectedPlatform.urlPattern + value;
+        }
     }
     
     const contact = {
         id: 'contact_' + Date.now(),
-        icon: '📧',
+        icon: selectedPlatform.icon,
+        iconColor: selectedPlatform.color,
+        platform: selectedPlatform.name,
         label: name,
-        value: email,
-        link: `mailto:${email}`,
+        value: value,
+        link: link,
         message: message,
         date: new Date().toISOString()
     };
@@ -657,8 +777,8 @@ function loadContacts() {
         list.innerHTML = `
             <div class="empty-state" style="grid-column: 1/-1;">
                 <div class="empty-icon">📧</div>
-                <div class="empty-title">No contact submissions yet</div>
-                <div class="empty-text">Add a contact or wait for submissions</div>
+                <div class="empty-title">No contacts yet</div>
+                <div class="empty-text">Add your social media and contact information</div>
             </div>
         `;
         return;
@@ -668,6 +788,9 @@ function loadContacts() {
         <div class="contact-card">
             <div class="contact-header">
                 <div>
+                    <div class="contact-icon-display">
+                        <i class="${contact.icon}" style="color: ${contact.iconColor || '#6366F1'};"></i>
+                    </div>
                     <div class="contact-name">${contact.label || contact.name || 'Unknown'}</div>
                     <div class="contact-email">${contact.value || contact.email || ''}</div>
                 </div>
@@ -790,4 +913,4 @@ function updateSyncStatus(status, text) {
     
     statusEl.className = 'sync-status ' + status;
     textEl.textContent = text;
-}
+    }
