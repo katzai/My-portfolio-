@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Portfolio Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg-main: #F8F9FA;
+            --bg-white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-gray: #6B6B6B;
+            --border: #E5E7EB;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 24px;
+            padding: 60px 50px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-subtitle {
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+
+        .pin-display {
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 36px;
+            letter-spacing: 16px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .keypad-btn {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            font-size: 28px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        .keypad-btn:hover {
+            background: var(--bg-main);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .keypad-btn:active {
+            transform: translateY(0);
+        }
+
+        .keypad-btn.clear {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            grid-column: span 2;
+        }
+
+        .keypad-btn.clear:hover {
+            background: #dc2626;
+        }
+
+        .error-msg {
+            color: var(--danger);
+            text-align: center;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: white;
+            border-bottom: 2px solid var(--border);
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .sync-status {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sync-status.synced {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .sync-status.syncing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .sync-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            background: white;
+            padding: 0 40px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 16px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--text-gray);
+            color: white;
+        }
+
+        .folder-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .folder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .folder-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .folder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-main);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .folder-item:hover {
+            background: #E5E7EB;
+        }
+
+        .folder-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .folder-icon {
+            font-size: 20px;
+        }
+
+        .folder-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .folder-count {
+            background: rgba(0,0,0,0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .folder-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .folder-delete:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .upload-zone {
+            background: white;
+            border: 3px dashed var(--border);
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 32px;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #F8F9FA;
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: #EEF2FF;
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .image-card.selected {
+            outline: 4px solid var(--primary);
+            transform: scale(0.95);
+        }
+
+        .image-preview {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 12px;
+        }
+
+        .image-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-folder {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .image-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 28px 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: var(--text-gray);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-main);
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            cursor: pointer;
+            background: white;
+        }
+
+        /* Social Media Icon Selector */
+        .icon-selector {
+            position: relative;
+        }
+
+        .icon-preview {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .icon-preview:hover {
+            border-color: var(--primary);
+        }
+
+        .icon-preview i {
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
+        }
+
+        .icon-preview-text {
+            flex: 1;
+            font-size: 15px;
+            color: var(--text-dark);
+        }
+
+        .icon-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 100;
+            display: none;
+        }
+
+        .icon-dropdown.active {
+            display: block;
+        }
+
+        .icon-search {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .icon-search input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .icon-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-option:hover {
+            background: var(--bg-main);
+        }
+
+        .icon-option.selected {
+            background: var(--primary);
+            color: white;
+        }
+
+        .icon-option i {
+            font-size: 20px;
+            width: 28px;
+            text-align: center;
+        }
+
+        .icon-option-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .cropper-wrapper {
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .project-slider {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .project-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .project-slide.active {
+            opacity: 1;
+        }
+
+        .project-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .project-body {
+            padding: 24px;
+        }
+
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .project-desc {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .contact-icon-display {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .contact-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .contact-email {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .contact-message {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 12px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .contact-date {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .config-notice {
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .config-notice-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #92400E;
+        }
+
+        .config-notice-text {
+            font-size: 14px;
+            color: #92400E;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .selected-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .selected-preview img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 3px solid var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .images-grid, .projects-grid, .contacts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1 class="login-title">Admin Access</h1>
+            <p class="login-subtitle">Enter your 4-digit PIN</p>
+            <div class="pin-display" id="pinDisplay">····</div>
+            
+            <div class="keypad">
+                <button class="keypad-btn" data-digit="1">1</button>
+                <button class="keypad-btn" data-digit="2">2</button>
+                <button class="keypad-btn" data-digit="3">3</button>
+                <button class="keypad-btn" data-digit="4">4</button>
+                <button class="keypad-btn" data-digit="5">5</button>
+                <button class="keypad-btn" data-digit="6">6</button>
+                <button class="keypad-btn" data-digit="7">7</button>
+                <button class="keypad-btn" data-digit="8">8</button>
+                <button class="keypad-btn" data-digit="9">9</button>
+                <button class="keypad-btn clear" id="clearBtn">Clear</button>
+                <button class="keypad-btn" data-digit="0">0</button>
+            </div>
+            
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <div class="admin-container" id="adminDashboard">
+        <div class="admin-header">
+            <h1 class="admin-title">Portfolio Admin</h1>
+            <div class="header-actions">
+                <div class="sync-status synced" id="syncStatus">
+                    <span>✓</span>
+                    <span id="syncText">Ready</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="switchTab('images')">🖼️ Images</button>
+            <button class="tab-btn" onclick="switchTab('projects')">💼 Projects</button>
+            <button class="tab-btn" onclick="switchTab('contacts')">📧 Contacts</button>
+            <button class="tab-btn" onclick="switchTab('config')">⚙️ Config</button>
+        </nav>
+
+        <div class="content">
+            <section id="imagesSection" class="section active">
+                <div class="section-header">
+                    <h2 class="section-title">Image Gallery</h2>
+                    <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">📤 Upload Images</button>
+                </div>
+
+                <div class="folder-panel">
+                    <div class="folder-header">
+                        <div class="folder-title">
+                            <span>📁</span>
+                            <span>Folders</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="openFolderModal()">➕ New Folder</button>
+                    </div>
+                    <div class="folder-list" id="folderList"></div>
+                </div>
+
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag & drop images here</div>
+                    <div class="upload-subtext">or click to browse • Unlimited uploads • PNG, JPG, GIF, WebP</div>
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                </div>
+
+                <div class="images-grid" id="imagesGrid"></div>
+            </section>
+
+            <section id="projectsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Projects</h2>
+                    <button class="btn btn-primary" onclick="openProjectModal()">➕ New Project</button>
+                </div>
+
+                <div class="projects-grid" id="projectsGrid"></div>
+            </section>
+
+            <section id="contactsSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Contact & Social Media</h2>
+                    <button class="btn btn-primary" onclick="openContactModal()">➕ Add Contact</button>
+                </div>
+
+                <div class="contacts-grid" id="contactsList"></div>
+            </section>
+
+            <section id="configSection" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">GitHub Configuration</h2>
+                    <button class="btn btn-success" onclick="saveConfig()">💾 Save Config</button>
+                </div>
+
+                <div class="folder-panel">
+                    <div class="config-notice">
+                        <div class="config-notice-title">⚠️ Important: GitHub Setup Required</div>
+                        <div class="config-notice-text">
+                            This admin panel pushes all changes directly to GitHub. Configure your GitHub credentials below to enable auto-sync.
+                            <br><br>
+                            <strong>How to get a GitHub Token:</strong><br>
+                            1. Go to GitHub Settings → Developer settings → Personal access tokens<br>
+                            2. Generate new token (classic)<br>
+                            3. Select 'repo' scope<br>
+                            4. Copy the token and paste below
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GitHub Personal Access Token</label>
+                        <input type="password" class="form-input" id="githubToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">GitHub Repository (format: username/repo)</label>
+                        <input type="text" class="form-input" id="githubRepo" placeholder="john/portfolio">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Admin PIN (4 digits)</label>
+                        <input type="password" class="form-input" id="adminPin" placeholder="1234" maxlength="4">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="modal" id="folderModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Folder</h3>
+                <button class="modal-close" onclick="closeFolderModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Folder Name</label>
+                    <input type="text" class="form-input" id="folderNameInput" placeholder="e.g., Portfolio, UI Design, Web Projects">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFolderModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createFolder()">Create Folder</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="cropModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Crop Image</h3>
+                <button class="modal-close" onclick="closeCropModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="cropper-wrapper">
+                    <img id="cropImage" style="max-width: 100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCropModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveCrop()">✂️ Save Cropped Image</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="projectModalTitle">New Project</h3>
+                <button class="modal-close" onclick="closeProjectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Project Title</label>
+                    <input type="text" class="form-input" id="projectTitle" placeholder="My Awesome Project">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="projectDesc" placeholder="Describe your project..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Technologies (comma-separated)</label>
+                    <input type="text" class="form-input" id="projectTech" placeholder="React, Node.js, MongoDB">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Project URL (optional)</label>
+                    <input type="text" class="form-input" id="projectUrl" placeholder="https://example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Images (Click to select unlimited)</label>
+                    <div class="images-grid" id="projectImageSelect"></div>
+                    
+                    <div class="selected-preview" id="selectedPreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveProject()">💾 Save Project</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="contactModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Contact / Social Media</h3>
+                <button class="modal-close" onclick="closeContactModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Platform / Type</label>
+                    <div class="icon-selector">
+                        <div class="icon-preview" id="iconPreview" onclick="toggleIconDropdown()">
+                            <i class="fas fa-envelope" id="selectedIcon" style="color: #6366F1;"></i>
+                            <span class="icon-preview-text" id="selectedPlatform">Email</span>
+                            <i class="fas fa-chevron-down" style="font-size: 14px; color: #6B6B6B;"></i>
+                        </div>
+                        <div class="icon-dropdown" id="iconDropdown">
+                            <div class="icon-search">
+                                <input type="text" placeholder="Search platforms..." id="iconSearchInput" oninput="filterIcons()">
+                            </div>
+                            <div class="icon-grid" id="iconGrid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Label / Display Name</label>
+                    <input type="text" class="form-input" id="contactName" placeholder="e.g., Email, Instagram, LinkedIn">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Value / Username / Link</label>
+                    <input type="text" class="form-input" id="contactValue" placeholder="e.g., john@example.com, @username, or full URL">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message / Description (optional)</label>
+                    <textarea class="form-textarea" id="contactMessage" placeholder="Optional message or description..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveContact()">💾 Save Contact</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="admin-config.js"></script>
+    <script src="admin-logic.js"></script>
+</body>
+  </html>
